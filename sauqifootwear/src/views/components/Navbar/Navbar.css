@@ -1,0 +1,67 @@
+:root {
+    --accent-default: #06080c;
+    --accent-dark: #1e4693;
+    --accent-light: #5a82cf;
+    --gray-lightest: #f4f5f4;
+    --gray-light: rgb(183, 211, 198);
+  }
+  
+  .circle-bg {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: #f4f5f4;
+    text-align: center;
+  }
+  
+  .navbar-container {
+    padding: 0 120px;
+    border: 1px solid #e2e5e6;
+  }
+  
+  .logo-text {
+    font-size: 24px;
+    font-family: Lato;
+    font-weight: bold;
+    color: var(--accent-default);
+  }
+
+  .border-menu {
+    height: 30px;
+    border-radius: 50%;
+    background-color: #f4f5f4;
+    border: 1px solid black;
+    text-align: center;
+  }
+  
+  .search-bar {
+    padding: 11px 16px;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    width: 100%;
+    outline: none;
+    border-bottom: 1px solid white;
+    transition: all ease 150ms;
+    
+  }
+  
+  .search-bar.active {
+    background-color: var(--gray-lightest);
+    border-bottom: 1px solid var(--accent-default);
+  }
+
+  .bg-home-top {
+    background: linear-gradient(to top, #ffffff 0%, #999966 154%);
+}
+
+hr {
+  display: block;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;  
+  margin-left: auto;
+  margin-right: auto;
+  border-style: inset;
+  border-width: 1px;
+}
+ 
