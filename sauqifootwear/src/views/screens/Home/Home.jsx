@@ -139,15 +139,15 @@ class Home extends React.Component {
 
                     <linebutton className="pt-5">
                     <div className="d-flex justify-content-center flex-row align-items-center my-3 ">
-                        <div style={{ border: "5px solid black", "border-radius": "15px" }}>
-                            <div className="btn-group btn-group-lg " role="group" style={{ padding: "5px" }}>
-                                <button type="button" className="btn btn-light " ><Link to="/" style={{ color: "inherit" }} onClick={() => this.getBestSellerData()}>
+                        <div style={{ border: "5px solid yellow", "border-radius": "15px" }}>
+                            <div className="btn-group btn-group-lg" role="group" style={{ padding: "5px" }}>
+                                <button type="button" className="btn btn-warning " ><Link to="/" style={{ color: "inherit" }} onClick={() => this.getBestSellerData()}>
                                     <h6 className="mx-4 font-weight-bold">ALL</h6>
                                 </Link></button>
-                                <button type="button" className="btn btn-light"><Link to="/" style={{ color: "inherit" }} onClick={() => this.getBestSellerData("Boots")}>
+                                <button type="button" className="btn btn-warning "><Link to="/" style={{ color: "inherit" }} onClick={() => this.getBestSellerData("Boots")}>
                                     <h6 className="mx-4 font-weight-bold">BOOTS</h6>
                                 </Link></button>
-                                <button type="button" className="btn btn-light"><Link to="/" style={{ color: "inherit" }} onClick={() => this.getBestSellerData()}>
+                                <button type="button" className="btn btn-warning"><Link to="/" style={{ color: "inherit" }} onClick={() => this.getBestSellerData()}>
                                     <h6 className="mx-4 font-weight-bold">CASUAL</h6>
                                 </Link></button>
                             </div>
