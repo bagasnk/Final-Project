@@ -39,7 +39,7 @@ class Navbar extends React.Component {
         return (
             <>
                 <div className="navbar navbar-expand-md navbar-light bg-light" >
-                    <div className="col-5 logo-text" style={{"text-align":"center"}}>
+                    <div className="col-5 logo-text" style={{ "text-align": "center" }}>
                         <Link style={{ textDecoration: "none", color: "inherit" }} to=""> <img src={Logo} height="100px" alt="Logo" /> Sauqi Footwear </Link>
                     </div>
 
@@ -50,29 +50,29 @@ class Navbar extends React.Component {
                                     <a className="nav-link pr-4" >HOW TO ORDER</a>
                                 </Link>
                             </li>
-                            <li className="nav-item active">
-                                <ButtonUI className="mr-3" type="contained" style={{ "border":"1px solid", "border-radius": "25px"}}>
-                                    <Link
-                                        style={{ textDecoration: "none", color: "inherit" }}
-                                        to="/"
-                                    >
+                            <Link
+                                style={{ textDecoration: "none", color: "inherit" }}
+                                to="/authlogin"
+                            >
+                                <li className="nav-item active">
+                                    <ButtonUI className="mr-3" type="contained" style={{ "border": "1px solid", "border-radius": "25px" }}>
                                         Sign in / Sign Up
-                                    </Link>
                                 </ButtonUI>
-                            </li>
+                                </li>
+                            </Link>
                         </ul>
-                    
+
                         <form className="form-inline ml-auto pt-3">
                             <div className="input-group pr-4">
                                 <input
                                     onFocus={this.onFocus}
                                     onBlur={this.onBlur}
-                                    className={`search-bar ${this.state.searchBarIsFocused ? "active" : null}`} 
+                                    className={`search-bar ${this.state.searchBarIsFocused ? "active" : null}`}
                                     type="text"
                                     placeholder="Search ..."
                                 />
                             </div>
-                            
+
                             <Link
                                 className="d-flex flex-row"
                                 to="/"
@@ -91,33 +91,33 @@ class Navbar extends React.Component {
                             </Link>
 
                             <Dropdown toggle={this.toggleDropdown} isOpen={this.state.dropdownOpen}>
-                                    <DropdownToggle tag="div" className="pl-3 d-flex " >
-                                        <FontAwesomeIcon icon={faUser} style={{ fontSize: 24 }} />
-                                        <p className="small ml-3 mr-4"></p>
-                                    </DropdownToggle>
+                                <DropdownToggle tag="div" className="pl-3 d-flex " >
+                                    <FontAwesomeIcon icon={faUser} style={{ fontSize: 24 }} />
+                                    <p className="small ml-3 mr-4"></p>
+                                </DropdownToggle>
 
-                                    <DropdownMenu
-                                        className="mt-2"
-                                        style={{ left: "auto", right: 0 }}>
-                                        <DropdownItem>
-                                            <Link
-                                                style={{ color: "inherit", textDecoration: "none" }}
-                                                to=""
-                                            >
-                                                Profile
+                                <DropdownMenu
+                                    className="mt-2"
+                                    style={{ left: "auto", right: 0 }}>
+                                    <DropdownItem>
+                                        <Link
+                                            style={{ color: "inherit", textDecoration: "none" }}
+                                            to=""
+                                        >
+                                            Profile
                                 </Link>
-                                        </DropdownItem>
+                                    </DropdownItem>
 
-                                        <DropdownItem>
-                                            <Link
-                                                style={{ color: "inherit", textDecoration: "none" }}
-                                                to=""
-                                            >
-                                                Members
+                                    <DropdownItem>
+                                        <Link
+                                            style={{ color: "inherit", textDecoration: "none" }}
+                                            to=""
+                                        >
+                                            Members
                                 </Link>
-                                        </DropdownItem>
-                                    </DropdownMenu>
-                                </Dropdown>
+                                    </DropdownItem>
+                                </DropdownMenu>
+                            </Dropdown>
                         </form>
                     </div>
                 </div>
