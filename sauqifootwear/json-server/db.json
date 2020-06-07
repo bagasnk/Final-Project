@@ -1,0 +1,31 @@
+{
+  "users": [
+    {
+      "username": "bagasnk",
+      "fullName": "Bagas Yafitra Pandji",
+      "password": "bagas",
+      "email": "bagasyafitrapandji.nk@gmail.com",
+      "address": "Jl. Puri asih 1 nomor 10",
+      "id": 1,
+      "role": "admin"
+    },
+    {
+      "username": "ilhamnk",
+      "fullName": "Ilham Kiranda",
+      "password": "ilham",
+      "email": "ilhamkiranda@gmail.com",
+      "address": "Jl. Bina asih 1 no 229",
+      "id": 2,
+      "role": "user"
+    },
+    {
+      "username": "kopong",
+      "password": "lukman",
+      "fullName": "Lukman Yudhokusumo",
+      "email": "lukmangmail.com",
+      "address": "Jl. Santosa Asih Jaya",
+      "role": "user",
+      "id": 3
+    }
+  ]
+}

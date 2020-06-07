@@ -7,6 +7,9 @@ import { Link } from "react-router-dom";
 import ButtonUI from "../Button/Button.tsx";
 import "./Navbar.css";
 import Logo from "../../../assets/images/Showcase/LOGO.png"
+import { logoutHandler, SearchAndFilterHandler, qtyCartHandler } from "../../../redux/actions";
+import { connect } from "react-redux";
+
 
 const CircleBg = ({ children }) => {
     return <div className="circle-bg">{children}</div>;
@@ -34,6 +37,10 @@ class Navbar extends React.Component {
         this.setState({ dropdownOpen: !this.state.dropdownOpen });
     };
 
+    logoutBtnHandler = () => {
+        this.props.onLogout();
+      };
+
 
     render() {
         return (
@@ -50,16 +57,37 @@ class Navbar extends React.Component {
                                     <a className="nav-link pr-4" >HOW TO ORDER</a>
                                 </Link>
                             </li>
-                            <Link
-                                style={{ textDecoration: "none", color: "inherit" }}
-                                to="/authlogin"
-                            >
-                                <li className="nav-item active">
-                                    <ButtonUI className="mr-3" type="contained" style={{ "border": "1px solid", "border-radius": "25px" }}>
-                                        Sign in / Sign Up
+                            {this.props.user.id ? (
+                                <Link
+                                    style={{ textDecoration: "none", color: "inherit" }}
+                                    to="/authlogin"
+                                >
+                                    <li className="nav-item active">
+                                        <ButtonUI 
+                                                onClick={this.logoutBtnHandler} 
+                                                className="mr-3" 
+                                                type="contained" 
+                                                style={{ "border": "1px solid", "border-radius": "25px" }}>
+
+                                            Logout
+                                         </ButtonUI>
+                                    </li>
+                                </Link>
+                            ) : (
+
+                                    <Link
+                                        style={{ textDecoration: "none", color: "inherit" }}
+                                        to="/authlogin"
+                                    >
+                                        <li className="nav-item active">
+                                            <ButtonUI className="mr-3" type="contained" style={{ "border": "1px solid", "border-radius": "25px" }}>
+                                                Sign in / Sign Up
                                 </ButtonUI>
-                                </li>
-                            </Link>
+                                        </li>
+                                    </Link>
+
+                                )}
+
                         </ul>
 
                         <form className="form-inline ml-auto pt-3">
@@ -126,4 +154,13 @@ class Navbar extends React.Component {
     }
 }
 
-export default Navbar;
+const mapStateToProps = (state) => {
+    return {
+        user: state.user,
+    };
+};
+const mapDispatchToProps = {
+    onLogout: logoutHandler,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Navbar);

@@ -1,7 +1,7 @@
 import React from "react"
 import TextField from "../../components/TextField/TextField"
 import ButtonUI from "../../components/Button/Button"
-//import { RegisterHandler, LoginHandler } from '../../../redux/actions'
+import { LoginHandler } from '../../../redux/actions'
 import { connect } from 'react-redux'
 import { Link } from "react-router-dom";
 import Cookie from 'universal-cookie'
@@ -19,7 +19,39 @@ class AuthLogin extends React.Component {
         },
     }
 
+    inputHandler = (e, field, form) => {
+        const { value } = e.target
+
+        this.setState({
+            [form]: {
+                ...this.state[form],
+                [field]: value,
+            }
+        })
+    }
+
+    LoginDataHandler = () => {
+        const { username, password } = this.state.loginForm
+        const userData = {
+            username,
+            password,
+        };
+        this.props.onLogin(userData)
+        this.state.loginForm.username = ""
+        this.state.loginForm.password = ""
+        this.setState({ errMsg: "" })
+    }
+
+    componentDidUpdate() {
+        if (this.props.user.id) {
+            cookiesObject.set("authData", JSON.stringify(this.props.user), {path:"/"})
+        }
+    }
+
     render() {
+        if (this.props.user.id > 0) {
+            return <Redirect to="/" />;
+        }
         return (
             <div className="container">
                 <div className="justify-content-around row mt-5">
@@ -30,6 +62,11 @@ class AuthLogin extends React.Component {
                                 <p className="linebutton pt-1" />
                                 <p className="small">
                                     If you have an account with us, please log in.</p>
+                                    {this.props.user.errMsg ? (
+                                    <div className="alert alert-danger mt-3 small">
+                                        {this.props.user.errMsg}
+                                    </div>
+                                ) : null}
                                 <TextField
                                     value={this.state.loginForm.username}
                                     onChange={(e) => this.inputHandler(e, "username", "loginForm")}
@@ -42,13 +79,14 @@ class AuthLogin extends React.Component {
                                     placeholder="Password"
                                     className="mt-2"
                                 />
-                                
-                                
+
+
                                 <Link style={{ textDecoration: "none", color: "inherit" }}>
                                     <a className="nav-link mb-2 small" >Forgot Your Password?</a>
                                 </Link>
                                 <div className="d-flex justify-content-center ">
                                     <ButtonUI
+                                        onClick={this.LoginDataHandler}
                                         type="contained"
                                         className="mt-4 mb-3 btn-block"
                                     >
@@ -89,4 +127,13 @@ class AuthLogin extends React.Component {
     }
 }
 
-export default AuthLogin;
+const mapStateToProps = state => {
+    return {
+        user: state.user
+    }
+}
+
+const mapDispatchToProps = {
+    onLogin: LoginHandler,
+}
+export default connect(mapStateToProps, mapDispatchToProps)(AuthLogin);

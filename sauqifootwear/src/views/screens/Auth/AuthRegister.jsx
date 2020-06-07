@@ -1,7 +1,7 @@
 import React from "react"
 import TextField from "../../components/TextField/TextField"
 import ButtonUI from "../../components/Button/Button"
-//import { RegisterHandler, LoginHandler } from '../../../redux/actions'
+import { RegisterHandler } from '../../../redux/actions'
 import { connect } from 'react-redux'
 import { Link } from "react-router-dom";
 import Cookie from 'universal-cookie'
@@ -21,6 +21,41 @@ class AuthRegister extends React.Component {
             address: "",
             showPassword: false,
             users: [],
+        }
+    }
+
+    inputHandler = (e, field, form) => {
+        const { value } = e.target
+
+        this.setState({
+            [form]: {
+                ...this.state[form],
+                [field]: value,
+            }
+        })
+    }
+
+    postDataHandler = () => {
+        const { username, fullName, password, email, address } = this.state.registerForm
+        const userData = {
+            username,
+            password,
+            fullName,
+            email,
+            address,
+        };
+        this.props.onRegister(userData)
+        this.state.registerForm.username = ""
+        this.state.registerForm.password = ""
+        this.state.registerForm.fullName = ""
+        this.state.registerForm.email = ""
+        this.state.registerForm.address = ""
+        this.setState({ errMsg: "" })
+    }
+
+    componentDidUpdate() {
+        if (this.props.user.id) {
+            cookiesObject.set("authData", JSON.stringify(this.props.user), {path:"/"})
         }
     }
 
@@ -82,21 +117,37 @@ class AuthRegister extends React.Component {
                                 placeholder="Repassword"
                                 className="mt-2"
                             />
-                            
+
                         </div>
+                        {this.props.user.errMsg ? (
+                            <div className="alert alert-danger mt-3 small">
+                                {this.props.user.errMsg}
+                            </div>
+                        ) : null}
                     </div>
                     <div className="d-flex justify-content-center">
-                                <ButtonUI
-                                    type="contained"
-                                    className="mt-4 btn-block"
-                                >
-                                    Register
+                        <ButtonUI
+                            onClick={this.postDataHandler}
+                            type="contained"
+                            className="mt-4 btn-block"
+                        >
+                            Register
                             </ButtonUI>
-                            </div>
+                    </div>
                 </div>
             </div>
         );
     }
 }
 
-export default AuthRegister;
+const mapStateToProps = state => {
+    return {
+        user: state.user
+    }
+}
+
+const mapDispatchToProps = {
+    onRegister: RegisterHandler,
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(AuthRegister)
