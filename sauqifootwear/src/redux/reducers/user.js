@@ -4,11 +4,14 @@ const { ON_LOGIN_FAIL, ON_LOGIN_SUCCESS, ON_LOGOUT, ON_REGISTER_SUCCESS, ON_REGI
 const init_state = {
   id: 0,
   username: "",
-  fullName: "",
+  fullname: "",
   email: "",
-  errMsg: "",
   role: "",
   address:"",
+  verify_token: "",
+  is_verified:"",
+  errMsg: "",
+  password : "",
   cookieChecked: false,
   searchAndFilter: "",
   
@@ -17,15 +20,17 @@ const init_state = {
 export default (state = init_state, action) => {
   switch (action.type) {
     case ON_LOGIN_SUCCESS:
-      const { username, fullName, email, id, role,address,password } = action.payload;
+      const { username, fullname, email, id, role, address, password, is_verified, verify_token } = action.payload;
       return {
         ...state,
         username,
-        fullName,
+        fullname,
         email,
         id,
         address,
         role,
+        is_verified,
+        verify_token,
         cookieChecked: true,
         errMsg: "",
       }
@@ -39,10 +44,12 @@ export default (state = init_state, action) => {
       return {
         ...state,
         username,
-        fullName,
+        fullname,
         email,
         password,
         id,
+        is_verified,
+        verify_token,
         address,
         cookieChecked: true,
         errMsg: "",
@@ -57,17 +64,18 @@ export default (state = init_state, action) => {
       return {
         ...state,
         username: action.payload,
-        fullName: action.payload,
+        fullname: action.payload,
         email: action.payload,
         password: action.payload,
         id: action.payload,
+        is_verified: action.payload,
+        verify_token: action.payload,
         cookieChecked: true,
         errMsg: "Berhasil Logout"
       };
     case COOKIE_CHECK:
       return { ...state, cookieChecked: true };
-    // case ON_UPDATE_QUANTITY_CART:
-    //   return { ...state, cookieChecked: true, val : action.payload};
+    
     default:
       return { ...state }
   }

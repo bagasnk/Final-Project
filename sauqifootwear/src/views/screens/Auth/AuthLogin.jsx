@@ -80,8 +80,7 @@ class AuthLogin extends React.Component {
                                     className="mt-2"
                                 />
 
-
-                                <Link style={{ textDecoration: "none", color: "inherit" }}>
+                                <Link style={{ textDecoration: "none", color: "inherit" }}  to="/resetPassword">
                                     <a className="nav-link mb-2 small" >Forgot Your Password?</a>
                                 </Link>
                                 <div className="d-flex justify-content-center ">

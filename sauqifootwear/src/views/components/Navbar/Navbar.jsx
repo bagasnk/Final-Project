@@ -1,166 +1,201 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faShoppingCart } from "@fortawesome/free-solid-svg-icons/";
+import { faShoppingCart, faSignInAlt, faSignOutAlt } from "@fortawesome/free-solid-svg-icons/";
 import { faUser } from "@fortawesome/free-regular-svg-icons";
 import { Dropdown, DropdownItem, DropdownToggle, DropdownMenu } from "reactstrap";
 import { Link } from "react-router-dom";
 import ButtonUI from "../Button/Button.tsx";
 import "./Navbar.css";
-import Logo from "../../../assets/images/Showcase/LOGO.png"
+import logoJapan from "../../../assets/images/Showcase/LogoJapanFair.jpeg"
 import { logoutHandler, SearchAndFilterHandler, qtyCartHandler } from "../../../redux/actions";
 import { connect } from "react-redux";
 
 
 const CircleBg = ({ children }) => {
-    return <div className="circle-bg">{children}</div>;
+  return <div className="circle-bg">{children}</div>;
 };
 
 class Navbar extends React.Component {
-    state = {
-        searchBarIsFocused: false,
-        searchBarInput: "",
-        dropdownOpen: false,
-        cartData: [],
-    };
+  state = {
+    searchBarIsFocused: false,
+    searchBarInput: "",
+    dropdownOpen: false,
+    cartData: [],
+  };
 
 
 
-    onFocus = () => {
-        this.setState({ searchBarIsFocused: true });
-    };
+  onFocus = () => {
+    this.setState({ searchBarIsFocused: true });
+  };
 
-    onBlur = () => {
-        this.setState({ searchBarIsFocused: false });
-    };
+  onBlur = () => {
+    this.setState({ searchBarIsFocused: false });
+  };
 
-    toggleDropdown = () => {
-        this.setState({ dropdownOpen: !this.state.dropdownOpen });
-    };
+  toggleDropdown = () => {
+    this.setState({ dropdownOpen: !this.state.dropdownOpen });
+  };
 
-    logoutBtnHandler = () => {
-        this.props.onLogout();
-      };
+  logoutBtnHandler = () => {
+    this.props.onLogout();
+  };
 
 
-    render() {
-        return (
-            <>
-                <div className="navbar navbar-expand-md navbar-light bg-light" >
-                    <div className="col-5 logo-text" style={{ "text-align": "center" }}>
-                        <Link style={{ textDecoration: "none", color: "inherit" }} to=""> <img src={Logo} height="100px" alt="Logo" /> Sauqi Footwear </Link>
-                    </div>
+  render() {
+    return (
+      <>
+        <div className="navbar navbar-expand-md navbar-light bg-light pt-0" >
+          <div className="col-2 logo-text" style={{ "text-align": "center" }}>
+            <Link style={{ textDecoration: "none", color: "inherit", color: "black" }} to=""> <img style={{ "border": "1px solid silver ", "border-radius": "50%" }} src={logoJapan} height="50px" /> JETRO.ID </Link>
+          </div>
 
-                    <div className="collapse navbar-collapse w-100 flex-md-column mr-5" id="navbarCollapse" >
-                        <ul className="navbar-nav ml-auto medium mb-2 mb-md-0 ">
-                            <li className="nav-item active">
-                                <Link style={{ textDecoration: "none", color: "inherit" }}>
-                                    <a className="nav-link pr-4" >HOW TO ORDER</a>
-                                </Link>
-                            </li>
-                            {this.props.user.id ? (
-                                <Link
-                                    style={{ textDecoration: "none", color: "inherit" }}
-                                    to="/authlogin"
-                                >
-                                    <li className="nav-item active">
-                                        <ButtonUI 
-                                                onClick={this.logoutBtnHandler} 
-                                                className="mr-3" 
-                                                type="contained" 
-                                                style={{ "border": "1px solid", "border-radius": "25px" }}>
+          <div className="collapse navbar-collapse w-100 " id="navbarCollapse" >
 
-                                            Logout
-                                         </ButtonUI>
-                                    </li>
-                                </Link>
-                            ) : (
-
-                                    <Link
-                                        style={{ textDecoration: "none", color: "inherit" }}
-                                        to="/authlogin"
-                                    >
-                                        <li className="nav-item active">
-                                            <ButtonUI className="mr-3" type="contained" style={{ "border": "1px solid", "border-radius": "25px" }}>
-                                                Sign in / Sign Up
-                                </ButtonUI>
-                                        </li>
-                                    </Link>
-
-                                )}
-
-                        </ul>
-
-                        <form className="form-inline ml-auto pt-3">
-                            <div className="input-group pr-4">
-                                <input
-                                    onFocus={this.onFocus}
-                                    onBlur={this.onBlur}
-                                    className={`search-bar ${this.state.searchBarIsFocused ? "active" : null}`}
-                                    type="text"
-                                    placeholder="Search ..."
-                                />
-                            </div>
-
-                            <Link
-                                className="d-flex flex-row"
-                                to="/"
-                                style={{ textDecoration: "none", color: "inherit" }}
-                            >
-                                <FontAwesomeIcon
-                                    className="mr-2"
-                                    icon={faShoppingCart}
-                                    style={{ fontSize: 24 }}
-                                />
-                                <CircleBg>
-                                    <small style={{ color: "#3C64B1", fontWeight: "bold" }}>
-                                        0
-                                    </small>
-                                </CircleBg>
-                            </Link>
-
-                            <Dropdown toggle={this.toggleDropdown} isOpen={this.state.dropdownOpen}>
-                                <DropdownToggle tag="div" className="pl-3 d-flex " >
-                                    <FontAwesomeIcon icon={faUser} style={{ fontSize: 24 }} />
-                                    <p className="small ml-3 mr-4"></p>
-                                </DropdownToggle>
-
-                                <DropdownMenu
-                                    className="mt-2"
-                                    style={{ left: "auto", right: 0 }}>
-                                    <DropdownItem>
-                                        <Link
-                                            style={{ color: "inherit", textDecoration: "none" }}
-                                            to=""
-                                        >
-                                            Profile
-                                </Link>
-                                    </DropdownItem>
-
-                                    <DropdownItem>
-                                        <Link
-                                            style={{ color: "inherit", textDecoration: "none" }}
-                                            to=""
-                                        >
-                                            Members
-                                </Link>
-                                    </DropdownItem>
-                                </DropdownMenu>
-                            </Dropdown>
-                        </form>
-                    </div>
+          <form className="form-inline ml-auto">
+                <div className="input-group">
+                  <input
+                    onFocus={this.onFocus}
+                    onBlur={this.onBlur}
+                    className={`search-bar ${this.state.searchBarIsFocused ? "active" : null}`}
+                    type="text"
+                    placeholder="Search ..."
+                  />
                 </div>
-            </>
-        )
-    }
+              </form>
+
+            <ul className="navbar-nav ml-auto medium mb-2 mb-md-0" style={{ borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
+              
+
+              {this.props.user.id ? (
+                <>
+                  <Link
+                    className="d-flex flex-row pt-2"
+                    to="/"
+                    style={{ textDecoration: "none", color: "inherit" }}
+                  >
+                    <FontAwesomeIcon
+                      className="mr-2"
+                      icon={faShoppingCart}
+                      style={{ fontSize: 24 }}
+                    />
+                    <CircleBg>
+                      <small style={{ color: "#3C64B1", fontWeight: "bold" }}>
+                        0
+                      </small>
+                    </CircleBg>
+                  </Link>
+
+
+                  <Dropdown toggle={this.toggleDropdown} isOpen={this.state.dropdownOpen}>
+                    <DropdownToggle tag="div" className="pl-3 d-flex pt-1">
+                      <FontAwesomeIcon icon={faUser} style={{ fontSize: 24 }} className="pt-2" />
+                      <p className="small ml-3 mr-4 mt-2">{this.props.user.username}</p>
+                    </DropdownToggle>
+
+
+                    <DropdownMenu className="mt-2" style={{ border: "1px solid silver" }}>
+                      {this.props.user.role === 'admin' ? (
+                        <>
+                          <DropdownItem>
+                            <Link
+                              style={{ color: "inherit", textDecoration: "none" }}
+                              to="/admin/products"
+                            >
+                              Products
+                            </Link>
+                          </DropdownItem>
+
+                          <DropdownItem>
+                            <Link
+                              style={{ color: "inherit", textDecoration: "none" }}
+                              to="/admin/members"
+                            >
+                              Members
+                            </Link>
+                          </DropdownItem>
+                          <DropdownItem>
+                            <Link
+                              style={{ color: "inherit", textDecoration: "none" }}
+                              to="/admin/payment"
+                            >
+                              Payments
+                            </Link>
+                          </DropdownItem>
+                          <DropdownItem>
+                            <Link
+                              style={{ color: "inherit", textDecoration: "none" }}
+                              to="/admin/report"
+                            >
+                              Reports
+                            </Link>
+                          </DropdownItem>
+                        </>
+                      ) : (
+                          <>
+                            <DropdownItem>
+                              <Link
+                                style={{ color: "inherit", textDecoration: "none" }}
+                                to="/user/profile"
+                              >
+                                Profile
+                                 </Link>
+                            </DropdownItem>
+                            <DropdownItem>
+                              <Link
+                                style={{ color: "inherit", textDecoration: "none" }}
+                                to="/history"
+                              >
+                                History
+                               </Link>
+                            </DropdownItem>
+                            <DropdownItem>
+                              <Link
+                                style={{ color: "inherit", textDecoration: "none" }}
+                                to="/wishlist"
+                              >
+                                Wishlist
+                              </Link>
+                            </DropdownItem>
+                          </>
+                        )}
+                    </DropdownMenu>
+                  </Dropdown>
+                  <Link
+                    style={{ textDecoration: "none", color: "inherit" }}
+                    to="/"
+                  >
+                    <li className="nav-item active" className="mt-2 ml-2 mr-2 pb-2" onClick={this.logoutBtnHandler} >
+                      <FontAwesomeIcon icon={faSignOutAlt} style={{ fontSize: 15 }} /><a>Logout</a>
+                    </li>
+                  </Link>
+                </>
+              ) : (
+                  <Link
+                    style={{ textDecoration: "none", color: "inherit" }}
+                    to="/authlogin"
+                  >
+                    <li className="nav-item active" className="mt-2 ml-2 mr-2 mb-3">
+                      <FontAwesomeIcon icon={faSignInAlt} style={{ fontSize: 15 }} /> Sign in
+                    </li>
+                  </Link>
+                )}
+
+            </ul>
+          </div>
+        </div>
+      </>
+    )
+  }
 }
 
 const mapStateToProps = (state) => {
-    return {
-        user: state.user,
-    };
+  return {
+    user: state.user,
+  };
 };
 const mapDispatchToProps = {
-    onLogout: logoutHandler,
+  onLogout: logoutHandler,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Navbar);

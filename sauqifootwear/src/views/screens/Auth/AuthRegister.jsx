@@ -8,13 +8,15 @@ import Cookie from 'universal-cookie'
 import { Redirect } from "react-router-dom";
 import "./Auth.css"
 
+
+
 const cookiesObject = new Cookie();
 
 class AuthRegister extends React.Component {
     state = {
         registerForm: {
             username: "",
-            fullName: "",
+            fullname: "",
             password: "",
             repassword: "",
             email: "",
@@ -36,18 +38,18 @@ class AuthRegister extends React.Component {
     }
 
     postDataHandler = () => {
-        const { username, fullName, password, email, address } = this.state.registerForm
+        const { username, fullname, password, email, address } = this.state.registerForm
         const userData = {
             username,
             password,
-            fullName,
+            fullname,
             email,
             address,
         };
         this.props.onRegister(userData)
         this.state.registerForm.username = ""
         this.state.registerForm.password = ""
-        this.state.registerForm.fullName = ""
+        this.state.registerForm.fullname = ""
         this.state.registerForm.email = ""
         this.state.registerForm.address = ""
         this.setState({ errMsg: "" })
@@ -76,8 +78,8 @@ class AuthRegister extends React.Component {
                                     className="mt-2"
                                 />
                                 <TextField
-                                    value={this.state.registerForm.fullName}
-                                    onChange={(e) => this.inputHandler(e, "fullName", "registerForm")}
+                                    value={this.state.registerForm.fullname}
+                                    onChange={(e) => this.inputHandler(e, "fullname", "registerForm")}
                                     placeholder="Full Name"
                                     className="mt-2"
                                 />

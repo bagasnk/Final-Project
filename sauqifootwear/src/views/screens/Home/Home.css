@@ -39,3 +39,15 @@ linebutton:after {
     border-bottom: 5px solid yellow; 
     margin: auto; 
 } 
+
+.nav-atas-btn {
+  border: none !important;
+  color: var(--gray-dark) !important;
+  transition: all 150ms ease-in-out;
+  border-radius: 0px !important;
+}
+
+.nav-atas-btn.active {
+  border-radius: 0px !important;
+  border-bottom: 5px solid var(--accent-default) !important
+}

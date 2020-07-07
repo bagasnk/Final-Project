@@ -6,10 +6,20 @@ import './App.css';
 import { userKeepLogin,cookieChecker } from './redux/actions';
 
 import Navbar from "./views/components/Navbar/Navbar";
+import NavbarBot from "./views/components/Navbar/NavbarBot"
 import Home from "./views/screens/Home/Home";
 import AuthLogin from "./views/screens/Auth/AuthLogin";
 import AuthRegister from "./views/screens/Auth/AuthRegister";
+import ProductDetails from "./views/screens/ProductDetails/ProductDetails";
+import UserProfile from './views/screens/User/UserProfile/UserProfile';
+import UserReset from "./views/screens/User/UserReset/UserReset";
+import UserResetPassword from "./views/screens/User/UserReset/UserResetPassword"
 import "bootstrap/dist/css/bootstrap.css";
+
+import PageNotFound from "./views/screens/Pagenotfound/PageNotFound"
+import AdminProducts from "./views/screens/Admin/AdminProducts/AdminProducts";
+import AdminMembers from "./views/screens/Admin/AdminMembers/AdminMembers";
+
 
 const cookiesObject = new Cookie();
 
@@ -24,7 +34,25 @@ class App extends React.Component {
     }
   }
 
+  renderAdminRoutes = () => {
+    if(this.props.user.role === 'admin'){
+      return (
+        <Switch>
+        <Route exact path="/admin/products" component={AdminProducts} />
+        <Route exact path="/admin/members" component={AdminMembers}/>
+        </Switch>
+      )
+    }else{
+      return (
+      <Switch>
+      <Route exact path="/*" component={PageNotFound} />
+      </Switch>
+      )
+    } 
+  }
+
   render() {
+    if (this.props.user.cookieChecked) {
     return (
       <>
         <Navbar />
@@ -32,10 +60,18 @@ class App extends React.Component {
           <Route exact path="/" component={Home} />
           <Route exact path="/authlogin" component={AuthLogin} />
           <Route exact path="/authregister" component={AuthRegister} />
-
+          <Route exact path="/user/profile" component={UserProfile} />
+          <Route exact path="/products/:productId" component={ProductDetails} />
+          <Route exact path="/resetPassword" component={UserReset} />
+          <Route exact path="/resetPassword/:user_id/:verify_token" component={UserResetPassword}/>
+          {this.renderAdminRoutes()}
         </Switch>
+        <NavbarBot />
       </>
     );
+    }else{
+      return <div>Loading....</div>
+    }
   }
 }
 const mapStateToProps = state => {
