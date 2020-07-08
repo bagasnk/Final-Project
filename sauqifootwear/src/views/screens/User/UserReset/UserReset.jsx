@@ -4,6 +4,7 @@ import Axios from "axios";
 import { connect } from "react-redux";
 import { Form, Button, Card } from "react-bootstrap";
 import ButtonUI from "../../../components/Button/Button"
+import TextField from "../../../components/TextField/TextField"
 
 
 import swal from "sweetalert";
@@ -32,19 +33,11 @@ class UserReset extends React.Component {
     console.log(formEmail);
     Axios.post(`${API_URL}/users/forgotpassword`, formEmail)
       .then((res) => {
-        swal(
-          "Request Success",
-          "Check your email to reset your password",
-          "success"
-        );
+        swal("Success","Please see your email to reset your password","success");
         console.log(res.data);
       })
       .catch((err) => {
-        swal(
-          "Request Failed",
-          "Your email not registered",
-          "error"
-        );
+        swal("Failed","The email you entered is incorrect or not yet registered","error");
         console.log(err);
       });
   };
@@ -59,9 +52,9 @@ class UserReset extends React.Component {
 
               <h5>ENTER YOUR EMAIL</h5>
               <p className="small text-left">
-                Link will be sent to your email to reset your password
+                The link to reset the password will be sent via email
               </p>
-              <Form.Control
+              <TextField
                 onChange={(e) => this.inputHandler(e, "email", "formEmail")}
                 className="my-2" placeholder="Enter Email" />
 

@@ -63,7 +63,7 @@ class App extends React.Component {
           <Route exact path="/user/profile" component={UserProfile} />
           <Route exact path="/products/:productId" component={ProductDetails} />
           <Route exact path="/resetPassword" component={UserReset} />
-          <Route exact path="/resetPassword/:user_id/:verify_token" component={UserResetPassword}/>
+          <Route exact path="/resetPassword/:user_id/:userVerif" component={UserResetPassword}/>
           {this.renderAdminRoutes()}
         </Switch>
         <NavbarBot />

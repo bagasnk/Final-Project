@@ -48,6 +48,17 @@ class AuthLogin extends React.Component {
         }
     }
 
+    checkboxHandler = (e, form) => {
+      
+      const { checked } = e.target
+      this.setState({
+          [form]: {
+              ...this.state[form],
+              showPassword: checked,
+          }
+      })
+  }
+
     render() {
         if (this.props.user.id > 0) {
             return <Redirect to="/" />;
@@ -78,7 +89,10 @@ class AuthLogin extends React.Component {
                                     onChange={(e) => this.inputHandler(e, "password", "loginForm")}
                                     placeholder="Password"
                                     className="mt-2"
+                                    type={this.state.loginForm.showPassword ? "text" : "password"}
                                 />
+                                 <input type="checkbox" onChange={(e) => this.checkboxHandler(e, 'loginForm')} className="mt-3" name="showPasswordLogin" />{" "}
+                                  Show Password
 
                                 <Link style={{ textDecoration: "none", color: "inherit" }}  to="/resetPassword">
                                     <a className="nav-link mb-2 small" >Forgot Your Password?</a>

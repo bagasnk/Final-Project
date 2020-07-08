@@ -29,6 +29,7 @@ class UserProfile extends React.Component {
       oldPassword: "",
       newPassword: "",
       confirmPassword: "",
+      showPassword: false,
     },
     modalOpen: false,
     modalOpenPassword: false,
@@ -44,6 +45,16 @@ class UserProfile extends React.Component {
       },
     });
   }
+
+  checkboxHandler = (e, form) => {
+    const { checked } = e.target
+    this.setState({
+        [form]: {
+            ...this.state[form],
+            showPassword: checked,
+        }
+    })
+}
 
   getUserId = () => {
     Axios.get(`${API_URL}/users/profile/${this.props.user.id}`)
@@ -123,6 +134,9 @@ class UserProfile extends React.Component {
           console.log(res.data);
         })
         .catch((err) => {
+          this.state.changePassword.oldPassword = ""
+          this.state.changePassword.newPassword = ""
+          this.state.changePassword.confirmPassword = ""
           alert("GAGAL kesalahan sistem");
           console.log(err);
         });
@@ -192,41 +206,29 @@ class UserProfile extends React.Component {
             <ModalBody>
               <TextField
                 value={this.state.changePassword.oldPassword}
-                onChange={(e) =>
-                  this.inputHandler(
-                    e,
-                    "oldPassword",
-                    "changePassword"
-                  )
-                }
+                onChange={(e) =>this.inputHandler( e,"oldPassword","changePassword")}
                 placeholder="Enter Old Password"
+                type={this.state.changePassword.showPassword ? "text" : "password"}
               />
+             
 
               <TextField
                 value={this.state.changePassword.newPassword}
-                onChange={(e) =>
-                  this.inputHandler(
-                    e,
-                    "newPassword",
-                    "changePassword"
-                  )
-                }
+                onChange={(e) =>this.inputHandler(e,"newPassword","changePassword")}
                 placeholder="Enter New Password"
+                type={this.state.changePassword.showPassword ? "text" : "password"}
               />
+              
 
               <TextField
-                value={
-                  this.state.changePassword.confirmPassword
-                }
-                onChange={(e) =>
-                  this.inputHandler(
-                    e,
-                    "confirmPassword",
-                    "changePassword"
-                  )
-                }
+                value={this.state.changePassword.confirmPassword}
+                onChange={(e) =>this.inputHandler( e,"confirmPassword","changePassword")}
                 placeholder="Confirm New Password"
+                type={this.state.changePassword.showPassword ? "text" : "password"}
               />
+               <input type="checkbox" onChange={(e) => this.checkboxHandler(e, 'changePassword')} className="mt-3" name="showPassword" />{" "}
+                    Show Password
+
               <div className="d-flex flex-row py-5">
                 <div className="col-5  offset-1">
                   <ButtonUI
