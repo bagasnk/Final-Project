@@ -51,3 +51,11 @@ linebutton:after {
   border-radius: 0px !important;
   border-bottom: 5px solid var(--accent-default) !important
 }
+
+.pageNum {
+  /* width : 45px; */
+  border: 1px solid #17A2BB;
+  color: #17A2BB;
+  text-align: center;
+  font-weight: bold;
+}

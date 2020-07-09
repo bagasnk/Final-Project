@@ -2,10 +2,13 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import { Carousel, CarouselControl, CarouselItem } from "reactstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faStepBackward, faFastBackward, faStepForward, faFastForward } from "@fortawesome/free-solid-svg-icons/";
 import "./Home.css";
 import ProductCard from "../../components/Cards/ProductCard";
 import TextField from "../../components/TextField/TextField";
 import ButtonUI from "../../components/Button/Button"
+import { FormControl, InputGroup } from "react-bootstrap";
 
 import Axios from "axios";
 import gambar1 from "../../../assets/images/Showcase/Japanfair1.jpeg"
@@ -51,7 +54,11 @@ class Home extends React.Component {
     minPriceNow: 0,
     sortList: "asc",
     orderBy: "productName",
-    activePage: "product"
+    activePage: "product",
+    currentPage: 1,
+    itemsPerPage: 1,
+    totalPages: 0,
+    totalElements: 0,
   };
 
   renderCarouselItems = () => {
@@ -75,6 +82,8 @@ class Home extends React.Component {
       );
     });
   };
+
+
   nextHandler = () => {
     if (this.state.animating) return;
     let nextIndex =
@@ -94,30 +103,127 @@ class Home extends React.Component {
     this.setState({ activeIndex: prevIndex });
   };
 
-  getBestSellerData = () => {
-    Axios.get(`${API_URL}/products`)
-      .then((res) => {
-        console.log(res.data)
-        this.setState({
-          bestSellerData: res.data,
-        });
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+  // getBestSellerData = (currentPage) => {
+  //   Axios.get(`${API_URL}/products/pages`, {
+  //     params: {
+  //       page: this.state.currentPage,
+  //       size: this.state.itemsPerPage
+  //     }
+  //   })
+  //     .then((res) => {
+  //       console.log(res.data)
+  //       this.setState({
+  //         bestSellerData: res.data,
+  //         totalPages: res.data.totalPages,
+  //         totalElements: res.data.totalElements,
+  //         currentPage: res.data.number + 1,
+  //       });
+  //     })
+  //     .catch((err) => {
+  //       console.log(err);
+  //     });
+  // }
+
+  inputNow = (e, form) => {
+    this.setState({
+      [form]: e
+    })
   }
 
+  changePage = event => {
+    let targetPage = parseInt(event.target.value)
+    this.getBestSellerDataByFilterSort(this.state.categoriesNow, targetPage);
+    this.setState({
+      [event.target.name]: targetPage
+    })
+  }
+
+
+  // button untuk balik ke page pertama 
+  firstPage = () => {
+    let firstPage = 1;
+    if (this.state.currentPage > firstPage) {
+      this.getBestSellerDataByFilterSort(this.state.categoriesNow, firstPage)
+    }
+  }
+
+  // button untuk kembali ke page sebelumnya
+  prevPage = () => {
+    let prevPage = 1;
+    if (this.state.currentPage > prevPage) {
+      this.getBestSellerDataByFilterSort(this.state.categoriesNow, this.state.currentPage - prevPage)
+    }
+  }
+
+  // button untuk maju ke page selanjutnya
+  nextPage = () => {
+    if (this.state.currentPage < Math.ceil(this.state.totalElements / this.state.itemsPerPage)) {
+      this.getBestSellerDataByFilterSort(this.state.categoriesNow, this.state.currentPage + 1)
+    }
+  }
+
+  // button untuk maju ke page terakhir
+  lastPage = () => {
+    let condition = Math.ceil(this.state.totalElements / this.state.itemsPerPage)
+    if (this.state.currentPage < condition) {
+      this.getBestSellerDataByFilterSort(this.state.categoriesNow, condition)
+    }
+  }
+
+
+  // get data paket + filter dan sort
   getBestSellerPaketByFilterSort = () => {
   }
 
-  getBestSellerDataByFilterSort = (val) => {
+
+  // get data product + filter dan sort 
+  // getBestSellerDataByFilterSort = (val) => {
+  //   if (val == "All") {
+  //     Axios.get(`${API_URL}/products/${this.state.minPriceNow}/${this.state.maxPriceNow}/${this.state.orderBy}/${this.state.sortList}/?productName=${this.state.productNameNow}`)
+  //       .then((res) => {
+  //         console.log(res.data)
+  //         this.setState({
+  //           bestSellerDataNew: res.data
+  //         })
+  //       })
+  //       .catch((err) => {
+  //         console.log(err)
+  //       })
+  //   } else {
+  //     Axios.get(`${API_URL}/products/${this.state.minPriceNow}/category/${this.state.maxPriceNow}/${this.state.orderBy}/${this.state.sortList}/?productName=${this.state.productNameNow}&nama=${val}`)
+  //       .then((res) => {
+  //         console.log(res.data)
+  //         this.setState({
+  //           bestSellerDataNew: res.data
+  //         })
+  //       })
+  //       .catch((err) => {
+  //         console.log(err)
+  //       })
+  //   }
+  // }
+
+  getBestSellerDataByFilterSort = (val, currentPage) => {
     if (val == "All") {
       Axios.get(`${API_URL}/products/${this.state.minPriceNow}/${this.state.maxPriceNow}/${this.state.orderBy}/${this.state.sortList}/?productName=${this.state.productNameNow}`)
         .then((res) => {
-          console.log(res.data)
-          this.setState({
-            bestSellerDataNew: res.data
+          currentPage -= 1
+          Axios.get(`${API_URL}/products/pages`, {
+            params: {
+              page: this.state.currentPage,
+              size: this.state.itemsPerPage
+            }
           })
+            .then((res) => {
+              console.log(res.data)
+              this.setState({
+                bestSellerDataNew: res.data.content,
+                totalPages: res.data.totalPages,
+                totalElements: res.data.totalElements,
+                currentPage: res.data.number + 1
+              });
+            })
+          console.log(res.data)
         })
         .catch((err) => {
           console.log(err)
@@ -136,47 +242,47 @@ class Home extends React.Component {
     }
   }
 
+  // Menampilkan category untuk SelectOption Category
   showCategory = () => {
     Axios.get(`${API_URL}/categories`)
       .then((res) => {
         this.setState({ categoryList: res.data });
       })
   }
+  
+  // data yang akan keluar dan diproses sekali saat pertama layar dijalankan
+  componentDidMount() {
+    this.getBestSellerDataByFilterSort(this.state.categoriesNow,this.state.currentPage)
+    this.showCategory();
+  }
 
+  // Kondisi Page berubah Product OR Paket
+  PageHandler = () => {
+    if (this.state.activePage == "product") {
+      return (
+        this.renderProducts()
+      )
+    } else if (this.state.activePage == "paket") {
+      return (
+        this.renderPaket()
+      )
+    }
+  }
+
+  // Menampilkan ProductCart Product
   renderProducts = () => {
     return this.state.bestSellerDataNew.map(val => {
       return <ProductCard data={val} className='m-3' />
     })
   }
 
+  // Menampilkan ProductCart Paket
   renderPaket = () => {
 
   }
 
-  componentDidMount() {
-    this.getBestSellerDataByFilterSort(this.state.categoriesNow)
-    this.showCategory();
-  }
-
-  inputNow = (e, form) => {
-    this.setState({
-      [form]: e
-    })
-  }
-
- PageHandler = () => {
-   if(this.state.activePage == "product"){
-     return(
-        this.renderProducts()
-      )
-      }else if(this.state.activePage == "paket"){
-      return(
-        this.renderPaket()
-      )  
-   }  
-   
- }
   render() {
+    const { currentPage, totalPages } = this.state;
     return (
       <>
         <div>
@@ -204,13 +310,13 @@ class Home extends React.Component {
         <h2 className="text-center font-weight-bolder mt-4">Japan Fair by JETRO</h2>
 
         <h4 className="text-center" style={{ "text-indent": "50px" }}>
-            Hanya buka Senin- Jumat 09.00-17.00.
-            Order di atas pukul 13.30 = proses besok.
+          Hanya buka Senin- Jumat 09.00-17.00.
+          Order di atas pukul 13.30 = proses besok.
             Managed by TCCM</h4>
         <div className="container pt-4">
           <div className="row">
             <div className="col-md-6">
-              <div className="thumbnail" style={{border : "3px solid yellow"}}>
+              <div className="thumbnail" style={{ border: "3px solid yellow" }}>
                 <a href="">
                   <img src={contoh1} alt="" className="img" style={{ height: "636px", width: "535px" }} />
                   <div className="caption">
@@ -219,7 +325,7 @@ class Home extends React.Component {
               </div>
             </div>
             <div className="col-md-6">
-              <div className="thumbnail" style={{border : "3px solid yellow"}}>
+              <div className="thumbnail" style={{ border: "3px solid yellow" }}>
                 <a href="">
                   <img src={contoh2} alt="" className="img" style={{ height: "350px", width: "535px" }} />
                   <div className="caption">
@@ -228,7 +334,7 @@ class Home extends React.Component {
               </div>
               <div className="row pt-3">
                 <div className="col-md-6">
-                  <div className="thumbnail" style={{border : "3px solid yellow"}}>
+                  <div className="thumbnail" style={{ border: "3px solid yellow" }}>
                     <a href="">
                       <img src={contoh3} alt="" className="img" style={{ height: "270px", width: "250px" }} />
                       <div className="caption">
@@ -237,7 +343,7 @@ class Home extends React.Component {
                   </div>
                 </div>
                 <div className="col-md-6">
-                  <div className="thumbnail" style={{border : "3px solid yellow"}}>
+                  <div className="thumbnail" style={{ border: "3px solid yellow" }}>
                     <a href="">
                       <img src={contoh4} alt="" className="img" style={{ height: "270px", width: "250px" }} />
                       <div className="caption">
@@ -296,49 +402,71 @@ class Home extends React.Component {
             <h2 className="text-center font-weight-bolder mt-2 mb-4">BEST SELLER</h2>
 
             <div style={{ marginTop: "70px" }}>
-                    <div className="mt-4">
-                        <div className="d-flex justify-content-center">
-                            <ButtonUI
-                                className={`nav-atas-btn ${
-                                    this.state.activePage == "product" ? "active" : null
-                                    } `}
-                                type="outlined"
-                                onClick={() => this.setState({ activePage : "product"})}
-                            >
-                                Products
+              <div className="mt-4">
+                <div className="d-flex justify-content-center">
+                  <ButtonUI
+                    className={`nav-atas-btn ${
+                      this.state.activePage == "product" ? "active" : null
+                      } `}
+                    type="outlined"
+                    onClick={() => this.setState({ activePage: "product" })}
+                  >
+                    Products
                         </ButtonUI>
-                            <ButtonUI
-                                className={`nav-atas-btn ${
-                                    this.state.activePage == "paket" ? "active" : null
-                                    } ml-4`}
-                                type="outlined"
-                                onClick={() => this.setState({ activePage : "paket"})}
-                            >
-                                Paket Products
+                  <ButtonUI
+                    className={`nav-atas-btn ${
+                      this.state.activePage == "paket" ? "active" : null
+                      } ml-4`}
+                    type="outlined"
+                    onClick={() => this.setState({ activePage: "paket" })}
+                  >
+                    Paket Products
                         </ButtonUI>
-                        </div>
-                    </div>
-                    <div className="mt-4">
-                        
-                    </div>
                 </div>
+              </div>
+              <div className="mt-4">
+
+              </div>
+            </div>
             <div className="row d-flex flex-wrap justify-content-center">
-                {/* {this.renderProducts()} */}
-                {this.PageHandler()}
+              {/* {this.renderProducts()} */}
+              {this.PageHandler()}
             </div>
-            <center>
-            <div className="d-flex flex row mt-5" style={{ width: "450px" }}>
-              <h6 className="pt-2">Sort By:</h6>
-              <select onClick={() => this.getBestSellerDataByFilterSort(this.state.categoriesNow)} onChange={(e) => this.setState({ orderBy: e.target.value })} style={{ width: "200px" }} className="form-control ml-4" name="Sort">
-                <option value="productName">Product Name</option>
-                <option value="price">Price</option>
-              </select> <h3 className="ml-3"> -</h3>
-              <select onClick={() => this.getBestSellerDataByFilterSort(this.state.categoriesNow)} onChange={(e) => this.setState({ sortList: e.target.value })} className="form-control ml-4" style={{ width: "100px" }} name="sortList">
-                <option value="asc">A-Z</option>
-                <option value="desc">Z-A</option>
-              </select>
-            </div>
-          </center>
+              
+              
+                <InputGroup size="sm">
+                  <InputGroup.Prepend>
+                    <ButtonUI disabled={currentPage === 1 ? true : false}
+                      onClick={this.firstPage}><FontAwesomeIcon icon={faFastBackward} />First</ButtonUI>
+                    <ButtonUI disabled={currentPage === 1 ? true : false}
+                      onClick={this.prevPage}><FontAwesomeIcon icon={faStepBackward} />Prev</ButtonUI>
+                  </InputGroup.Prepend>
+                  <FormControl className={"pageNum bg-light"} style={{width:"10px"}} name="currentPage" value={currentPage}
+                    onChange={this.changePage} />
+                  <InputGroup.Append>
+                    <ButtonUI disabled={currentPage === totalPages ? true : false}
+                      onClick={this.nextPage}><FontAwesomeIcon icon={faStepForward} />Next</ButtonUI>
+                    <ButtonUI disabled={currentPage === totalPages ? true : false}
+                      onClick={this.lastPage}><FontAwesomeIcon icon={faFastForward} />Last</ButtonUI>
+                  </InputGroup.Append>
+                </InputGroup>
+
+              <div style={{ "float": "left" }}>
+                Showing Page {currentPage} of {totalPages}
+              </div>
+                      <center>
+              <div className="d-flex flex row mt-5" style={{ width: "450px" }}>
+                <h6 className="pt-2">Sort By:</h6>
+                <select onClick={() => this.getBestSellerDataByFilterSort(this.state.categoriesNow)} onChange={(e) => this.setState({ orderBy: e.target.value })} style={{ width: "200px" }} className="form-control ml-4" name="Sort">
+                  <option value="productName">Product Name</option>
+                  <option value="price">Price</option>
+                </select> <h3 className="ml-3"> -</h3>
+                <select onClick={() => this.getBestSellerDataByFilterSort(this.state.categoriesNow)} onChange={(e) => this.setState({ sortList: e.target.value })} className="form-control ml-4" style={{ width: "100px" }} name="sortList">
+                  <option value="asc">A-Z</option>
+                  <option value="desc">Z-A</option>
+                </select>
+              </div>
+            </center>
           </div>
           <h4 className="text-justify mt-5 text-center" style={{ "text-indent": "50px" }}>
             Japan Fair Official Shop adalah akun resmi dari JETRO di Platform Shopee.

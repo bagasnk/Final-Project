@@ -177,6 +177,7 @@ class UserProfile extends React.Component {
                     <h6 className="mt-2"> : {address}</h6>
                     <h6 className="mt-2"> : {email}</h6>
                     <div className="row">
+
                       <ButtonUI
                         onClick={(_) => this.editBtnHandler()}
                         type="contained"
