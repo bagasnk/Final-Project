@@ -20,89 +20,76 @@ class ProductDetails extends React.Component {
         description: "",
         id: 0,
         categories: [],
+        cartDataUser: [],
         },
     }
 
     addToCartHandler = () => {
-        Axios.get(`${API_URL}/carts`, {
-            params: {
-                productId: this.state.productData.id,
-                userId: this.props.user.id,
-            }
+      if (this.props.user.id < 1) {
+        swal(
+          "Sorry :(",
+          "You have not login yet, please login before add your item",
+          "error"
+        );
+      }else{
+        Axios.get(`${API_URL}/carts/user/${this.props.user.id}`)
+        .then((res) => {
+        // console.log(res);
+        this.setState({ cartDataUser: res.data });
+        let checkItems = this.state.cartDataUser.findIndex((val) => {
+          return (
+            val.product.id == this.state.productData.id 
+          )
         })
+        if (checkItems == -1) {
+          // console.log(this.state.productData.id);
+          Axios.post(
+            `${API_URL}/carts/addCart/${this.props.user.id}/${this.state.productData.id}`,
+            {
+              quantity: 1,
+            }
+          )
             .then((res) => {
-                if (res.data.length !== 0) {
-                    Axios.patch(`${API_URL}/carts/${res.data[0].id}`, {
-                        quantity: res.data[0].quantity + 1
-                    })
-                        .then((res) => {
-                            console.log(res.data)
-                            swal("Add to carts", "Your item has been added to your cart", "success");
-                        })
-                } else {
-                    Axios.post(`${API_URL}/carts`, {
-                        userId: this.props.user.id,
-                        productId: this.state.productData.id,
-                        quantity: 1,
-                    })
-                        .then((res) => {
-                            console.log(res);
-                            swal("Add to carts", "Your item has been added to your cart", "success");
-                            Axios.get(`${API_URL}/carts`, {
-                                params: {
-                                  userId: this.props.user.id,
-                                  _expand: "product"
-                                }
-                              })
-                            .then((res) => {
-                                this.props.onQtyCartHandler(res.data.length)
-                            })
-                            .catch((err) => {
-                                console.log(err)
-                            })
-                        })
-                        .catch((err) => {
-                            console.log(err);
-                        });
-                }
+              console.log(res.data);
+              swal(
+                "Add to cart",
+                "New item has been added to your cart",
+                "success"
+              );
+              this.props.cartUpdate(this.props.user.id);
             })
-    };
-
-    addToWishlistHandler = () => {
-        Axios.get(`${API_URL}/wishlist`, {
-            params: {
-                productId: this.state.productData.id,
-                userId: this.props.user.id,
-            }
-        })
-            .then((res) => {
-                if (res.data.length !== 0) {
-                    swal("Add to wishlist", "Your item is already in your Wishlist", "error");
-                } else {
-                    Axios.post(`${API_URL}/wishlist`, {
-                        userId: this.props.user.id,
-                        productId: this.state.productData.id,
-                    })
-                        .then((res) => {
-                            console.log(res);
-                            swal("Add to Wishlist", "Your item has been added to your Wishlist", "success");
-                        })
-                        .catch((err) => {
-                            console.log(err);
-                        });
-                }
-            }
-            )
             .catch((err) => {
-                console.log(err)
-            })
-    };
+              console.log(err);
+            });
 
+        } else {
+
+          swal(
+            "Add to cart",
+            "Quantity item has been added to your cart",
+            "success"
+          );
+          Axios.put(`${API_URL}/carts/updateQty/${this.state.cartDataUser[checkItems].id}`)
+            .then((resSameData) => {
+              // alert("masuk")
+              console.log(resSameData)
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        }
+      });
+    }
+  };
+    
     componentDidMount() {
         Axios.get(`${API_URL}/products/${this.props.match.params.productId}`)
             .then((res) => {
                 this.setState({ productData: res.data })
                 console.log(this.state.productData)
+
+                // this.setState({ productData: { ...this.state.productData, ...res.data }})
+              //this.props.cartUpdate(this.props.user.id)
             })
             .catch((err) => {
                 console.log(err)

@@ -14,6 +14,7 @@ import ProductDetails from "./views/screens/ProductDetails/ProductDetails";
 import UserProfile from './views/screens/User/UserProfile/UserProfile';
 import UserReset from "./views/screens/User/UserReset/UserReset";
 import UserResetPassword from "./views/screens/User/UserReset/UserResetPassword"
+import UserCart from "./views/screens/User/UserCart/UserCart"
 import "bootstrap/dist/css/bootstrap.css";
 
 import PageNotFound from "./views/screens/Pagenotfound/PageNotFound"
@@ -64,6 +65,7 @@ class App extends React.Component {
           <Route exact path="/products/:productId" component={ProductDetails} />
           <Route exact path="/resetPassword" component={UserReset} />
           <Route exact path="/resetPassword/:user_id/:userVerif" component={UserResetPassword}/>
+          <Route exact path="/userCart" component={UserCart}/>
           {this.renderAdminRoutes()}
         </Switch>
         <NavbarBot />

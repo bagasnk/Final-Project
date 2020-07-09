@@ -19,9 +19,10 @@ class AdminProducts extends React.Component {
 
     createForm: {
       productName: "",
-      price: 0,
+      price: null,
       image: "",
-      description: "",
+      description: "",  
+      stock: null,
     },
 
     createCategoriesForm: {
@@ -34,6 +35,7 @@ class AdminProducts extends React.Component {
       price: 0,
       image: "",
       description: "",
+      stock: 0,
     },
     categoriesList: "",
     activeProducts: [],
@@ -54,7 +56,7 @@ class AdminProducts extends React.Component {
 
   renderProductList = () => {
     return this.state.productList.map((val, idx) => {
-      const { id, productName, price, categories, image, description } = val;
+      const { id, productName, price, categories, image, description, stock } = val;
       return (
         <>
           <tr
@@ -73,6 +75,7 @@ class AdminProducts extends React.Component {
             }}>
             <td> {id} </td>
             <td> {productName} </td>
+            <td> {stock} </td>
             <td>
               {" "}
               {new Intl.NumberFormat("id-ID", {
@@ -165,9 +168,10 @@ class AdminProducts extends React.Component {
         this.setState({
           createForm: {
             productName: "",
-            price: 0,
+            price: null,
             image: "",
             description: "",
+            stock: null,
           }
         });
 
@@ -273,9 +277,10 @@ class AdminProducts extends React.Component {
           <table className="dashboard-table">
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Price</th>
+                <th className="col-1">ID</th>
+                <th className="col-5">Name</th>
+                <th className="col-3">Stock</th>
+                <th className="col-3">Price</th>
               </tr>
             </thead>
             <tbody>{this.renderProductList()}</tbody>
@@ -302,7 +307,7 @@ class AdminProducts extends React.Component {
             </div>
             <div className="col-12 mt-3">
               <textarea
-                value={this.state.createForm.descescripton}
+                value={this.state.createForm.description}
                 onChange={(e) => this.inputHandler(e, "description", "createForm")}
                 style={{ resize: "none" }}
                 placeholder="Description"
@@ -317,7 +322,11 @@ class AdminProducts extends React.Component {
               />
             </div>
             <div className="col-6 mt-3">
-
+              <TextField
+                value={this.state.createForm.stock}
+                placeholder="Stock"
+                onChange={(e) => this.inputHandler(e, "stock", "createForm")}
+              />
             </div>
             <div className="col-3 mt-3">
               <ButtonUI onClick={this.createProductHandler} type="contained">
@@ -399,7 +408,8 @@ class AdminProducts extends React.Component {
           </ModalHeader>
           <ModalBody>
             <div className="row">
-              <div className="col-8">
+              <div className="col-12">
+                Nama Product : 
                 <TextField
                   value={this.state.editForm.productName}
                   placeholder="Product Name"
@@ -408,7 +418,17 @@ class AdminProducts extends React.Component {
                   }
                 />
               </div>
-              <div className="col-4">
+              
+              <div className="col-6">
+                  Stock : 
+                  <TextField
+                    value={this.state.editForm.stock}
+                    placeholder="Stock"
+                    onChange={(e) => this.inputHandler(e, "stock", "editForm")}
+                  />
+                </div>
+                <div className="col-6">
+                Price : 
                 <TextField
                   value={this.state.editForm.price}
                   placeholder="Price"
@@ -416,6 +436,7 @@ class AdminProducts extends React.Component {
                 />
               </div>
               <div className="col-12 mt-3">
+                Description : 
                 <textarea
                   value={this.state.editForm.description}
                   onChange={(e) => this.inputHandler(e, "description", "editForm")}
@@ -425,23 +446,12 @@ class AdminProducts extends React.Component {
                 ></textarea>
               </div>
               <div className="col-6 mt-3">
+                Image :
                 <TextField
                   value={this.state.editForm.image}
                   placeholder="Image Source"
                   onChange={(e) => this.inputHandler(e, "image", "editForm")}
                 />
-              </div>
-              <div className="col-6 mt-3">
-                {/* <select
-                  value={this.state.editForm.category}
-                  className="custom-text-input h-100 pl-3"
-                  onChange={(e) => this.inputHandler(e, "category", "editForm")}
-                >
-                  <option value="Phone">Phone</option>
-                  <option value="Tab">Tab</option>
-                  <option value="Laptop">Laptop</option>
-                  <option value="Desktop">Desktop</option>
-                </select> */}
               </div>
               <div className="col-12 text-center my-3">
                 <img src={this.state.editForm.image} alt="" />

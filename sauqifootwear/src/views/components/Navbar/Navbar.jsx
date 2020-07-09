@@ -71,7 +71,7 @@ class Navbar extends React.Component {
                 <>
                   <Link
                     className="d-flex flex-row pt-2"
-                    to="/"
+                    to="/userCart"
                     style={{ textDecoration: "none", color: "inherit" }}
                   >
                     <FontAwesomeIcon
