@@ -8,7 +8,7 @@ import "./Home.css";
 import ProductCard from "../../components/Cards/ProductCard";
 import TextField from "../../components/TextField/TextField";
 import ButtonUI from "../../components/Button/Button"
-import { FormControl, InputGroup } from "react-bootstrap";
+import { Card, Table, Image, ButtonGroup, Button, InputGroup, FormControl } from "react-bootstrap";
 
 import Axios from "axios";
 import gambar1 from "../../../assets/images/Showcase/Japanfair1.jpeg"
@@ -55,8 +55,9 @@ class Home extends React.Component {
     sortList: "asc",
     orderBy: "productName",
     activePage: "product",
-    currentPage: 1,
-    itemsPerPage: 1,
+    currentPage: 0,
+    currentPagePaket: 0,
+    itemsPerPage: 2,
     totalPages: 0,
     totalElements: 0,
   };
@@ -132,7 +133,11 @@ class Home extends React.Component {
 
   changePage = event => {
     let targetPage = parseInt(event.target.value)
-    this.getBestSellerDataByFilterSort(this.state.categoriesNow, targetPage);
+    if (this.state.activePage == "product") {
+      this.getBestSellerDataByFilterSort(this.state.categoriesNow, targetPage);
+    } else {
+      this.getBestSellerPaketByFilterSort(this.state.categoriesNow, targetPage);
+    }
     this.setState({
       [event.target.name]: targetPage
     })
@@ -142,31 +147,56 @@ class Home extends React.Component {
   // button untuk balik ke page pertama 
   firstPage = () => {
     let firstPage = 1;
-    if (this.state.currentPage > firstPage) {
-      this.getBestSellerDataByFilterSort(this.state.categoriesNow, firstPage)
+    if (this.state.activePage == "product") {
+      if (this.state.currentPage > firstPage) {
+        this.getBestSellerDataByFilterSort(this.state.categoriesNow, firstPage)
+      }
+    } else {
+      if (this.state.currentPagePaket > firstPage) {
+        this.getBestSellerPaketByFilterSort(this.state.categoriesNow, firstPage);
+      }
     }
   }
 
   // button untuk kembali ke page sebelumnya
   prevPage = () => {
     let prevPage = 1;
-    if (this.state.currentPage > prevPage) {
-      this.getBestSellerDataByFilterSort(this.state.categoriesNow, this.state.currentPage - prevPage)
+    if (this.state.activePage == "product") {
+      if (this.state.currentPage > prevPage) {
+        this.getBestSellerDataByFilterSort(this.state.categoriesNow, this.state.currentPage - prevPage)
+      }
+    } else {
+      if (this.state.currentPagePaket > prevPage) {
+        this.getBestSellerPaketByFilterSort(this.state.categoriesNow, this.state.currentPagePaket - prevPage);
+      }
     }
   }
 
   // button untuk maju ke page selanjutnya
   nextPage = () => {
-    if (this.state.currentPage < Math.ceil(this.state.totalElements / this.state.itemsPerPage)) {
-      this.getBestSellerDataByFilterSort(this.state.categoriesNow, this.state.currentPage + 1)
+    if (this.state.activePage == "product") {
+      if (this.state.currentPage < Math.ceil(this.state.totalElements / this.state.itemsPerPage)) {
+        this.getBestSellerDataByFilterSort(this.state.categoriesNow, this.state.currentPage + 1)
+      }
+    } else {
+      if (this.state.currentPagePaket < Math.ceil(this.state.totalElements / this.state.itemsPerPage)) {
+        this.getBestSellerPaketByFilterSort(this.state.categoriesNow, this.state.currentPagePaket + 1)
+      }
     }
   }
 
   // button untuk maju ke page terakhir
   lastPage = () => {
     let condition = Math.ceil(this.state.totalElements / this.state.itemsPerPage)
-    if (this.state.currentPage < condition) {
-      this.getBestSellerDataByFilterSort(this.state.categoriesNow, condition)
+    let conditionPaket = Math.ceil(this.state.totalElements / this.state.itemsPerPage)
+    if (this.state.activePage == "product") {
+      if (this.state.currentPage < condition) {
+        this.getBestSellerDataByFilterSort(this.state.categoriesNow, condition)
+      }
+    } else {
+      if (this.state.currentPagePaket < condition) {
+        this.getBestSellerPaketByFilterSort(this.state.categoriesNow, conditionPaket)
+      }
     }
   }
 
@@ -175,66 +205,33 @@ class Home extends React.Component {
   getBestSellerPaketByFilterSort = () => {
   }
 
-
-  // get data product + filter dan sort 
-  // getBestSellerDataByFilterSort = (val) => {
-  //   if (val == "All") {
-  //     Axios.get(`${API_URL}/products/${this.state.minPriceNow}/${this.state.maxPriceNow}/${this.state.orderBy}/${this.state.sortList}/?productName=${this.state.productNameNow}`)
-  //       .then((res) => {
-  //         console.log(res.data)
-  //         this.setState({
-  //           bestSellerDataNew: res.data
-  //         })
-  //       })
-  //       .catch((err) => {
-  //         console.log(err)
-  //       })
-  //   } else {
-  //     Axios.get(`${API_URL}/products/${this.state.minPriceNow}/category/${this.state.maxPriceNow}/${this.state.orderBy}/${this.state.sortList}/?productName=${this.state.productNameNow}&nama=${val}`)
-  //       .then((res) => {
-  //         console.log(res.data)
-  //         this.setState({
-  //           bestSellerDataNew: res.data
-  //         })
-  //       })
-  //       .catch((err) => {
-  //         console.log(err)
-  //       })
-  //   }
-  // }
-
+  // get data products + filter dan sort
   getBestSellerDataByFilterSort = (val, currentPage) => {
+    currentPage -= 1
     if (val == "All") {
-      Axios.get(`${API_URL}/products/${this.state.minPriceNow}/${this.state.maxPriceNow}/${this.state.orderBy}/${this.state.sortList}/?productName=${this.state.productNameNow}`)
+      Axios.get(`${API_URL}/products/${this.state.minPriceNow}/${this.state.maxPriceNow}/${this.state.orderBy}/${this.state.sortList}/?productName=${this.state.productNameNow}&page=${currentPage}&size=2`)
         .then((res) => {
-          currentPage -= 1
-          Axios.get(`${API_URL}/products/pages`, {
-            params: {
-              page: this.state.currentPage,
-              size: this.state.itemsPerPage
-            }
-          })
-            .then((res) => {
-              console.log(res.data)
-              this.setState({
-                bestSellerDataNew: res.data.content,
-                totalPages: res.data.totalPages,
-                totalElements: res.data.totalElements,
-                currentPage: res.data.number + 1
-              });
-            })
+          this.setState({
+            bestSellerDataNew: res.data.content,
+            totalPages: res.data.totalPages,
+            totalElements: res.data.totalElements,
+            currentPage: res.data.number + 1
+          });
           console.log(res.data)
         })
         .catch((err) => {
           console.log(err)
         })
     } else {
-      Axios.get(`${API_URL}/products/${this.state.minPriceNow}/category/${this.state.maxPriceNow}/${this.state.orderBy}/${this.state.sortList}/?productName=${this.state.productNameNow}&nama=${val}`)
+      Axios.get(`${API_URL}/products/${this.state.minPriceNow}/category/${this.state.maxPriceNow}/${this.state.orderBy}/${this.state.sortList}/?productName=${this.state.productNameNow}&nama=${val}&page=${currentPage}&size=2`)
         .then((res) => {
-          console.log(res.data)
           this.setState({
-            bestSellerDataNew: res.data
-          })
+            bestSellerDataNew: res.data.content,
+            totalPages: res.data.totalPages,
+            totalElements: res.data.totalElements,
+            currentPage: res.data.number + 1
+          });
+          console.log(res.data)
         })
         .catch((err) => {
           console.log(err)
@@ -249,18 +246,41 @@ class Home extends React.Component {
         this.setState({ categoryList: res.data });
       })
   }
-  
+
   // data yang akan keluar dan diproses sekali saat pertama layar dijalankan
   componentDidMount() {
-    this.getBestSellerDataByFilterSort(this.state.categoriesNow,this.state.currentPage)
+    this.getBestSellerDataByFilterSort(this.state.categoriesNow, this.state.currentPage)
     this.showCategory();
   }
 
   // Kondisi Page berubah Product OR Paket
   PageHandler = () => {
+    const { currentPage, totalPages } = this.state;
     if (this.state.activePage == "product") {
       return (
-        this.renderProducts()
+        <>
+          {this.renderProducts()}
+            <InputGroup size="sm">
+              <InputGroup.Prepend>
+                <ButtonUI disabled={currentPage === 1 ? true : false}
+                  onClick={this.firstPage}><FontAwesomeIcon icon={faFastBackward} />First</ButtonUI>
+                <ButtonUI disabled={currentPage === 1 ? true : false}
+                  onClick={this.prevPage}><FontAwesomeIcon icon={faStepBackward} />Prev</ButtonUI>
+              </InputGroup.Prepend>
+              <FormControl className={"page-num bg-light"} name="currentPage" value={currentPage}
+                onChange={this.changePage} />
+              <InputGroup.Append>
+                <ButtonUI disabled={currentPage === totalPages ? true : false}
+                  onClick={this.nextPage}><FontAwesomeIcon icon={faStepForward} />Next</ButtonUI>
+                <ButtonUI disabled={currentPage === totalPages ? true : false}
+                  onClick={this.lastPage}><FontAwesomeIcon icon={faFastForward} />Last</ButtonUI>
+              </InputGroup.Append>
+            </InputGroup>
+
+          <div style={{ "float": "left" }}>
+            Showing Page {currentPage} of {totalPages}
+          </div>
+        </>
       )
     } else if (this.state.activePage == "paket") {
       return (
@@ -282,7 +302,6 @@ class Home extends React.Component {
   }
 
   render() {
-    const { currentPage, totalPages } = this.state;
     return (
       <>
         <div>
@@ -363,14 +382,14 @@ class Home extends React.Component {
                     <TextField
                       placeholder="Nama Product"
                       onChange={(e) => this.setState({ productNameNow: e.target.value })}
-                      onKeyUp={() => this.getBestSellerDataByFilterSort(this.state.categoriesNow)}
+                      onKeyUp={() => this.getBestSellerDataByFilterSort(this.state.categoriesNow, this.state.currentPage)}
                     />
                   </div>
                   <div className="col-2 mt-1">
                     <TextField
                       placeholder="Min price"
                       onChange={(e) => this.setState({ minPriceNow: +e.target.value })}
-                      onKeyUp={() => this.getBestSellerDataByFilterSort(this.state.categoriesNow)}
+                      onKeyUp={() => this.getBestSellerDataByFilterSort(this.state.categoriesNow, this.state.currentPage)}
                     />
                   </div>
                   <h1>-</h1>
@@ -378,12 +397,12 @@ class Home extends React.Component {
                     <TextField
                       placeholder="Max price"
                       onChange={(e) => this.setState({ maxPriceNow: +e.target.value })}
-                      onKeyUp={() => this.getBestSellerDataByFilterSort(this.state.categoriesNow)}
+                      onKeyUp={() => this.getBestSellerDataByFilterSort(this.state.categoriesNow, this.state.currentPage)}
                     />
                   </div>
                   <select
                     className="custom-text-input h-100 pl-3 mt-1 pt-3"
-                    onClick={(e) => { this.getBestSellerDataByFilterSort(this.state.categoriesNow) }}
+                    onClick={(e) => { this.getBestSellerDataByFilterSort(this.state.categoriesNow, this.state.currentPage) }}
                     onChange={(e) => this.setState({ categoriesNow: e.target.value })}>
                     <option value="All" >All Category</option>
                     {this.state.categoryList.map((val) => {
@@ -432,29 +451,10 @@ class Home extends React.Component {
               {/* {this.renderProducts()} */}
               {this.PageHandler()}
             </div>
-              
-              
-                <InputGroup size="sm">
-                  <InputGroup.Prepend>
-                    <ButtonUI disabled={currentPage === 1 ? true : false}
-                      onClick={this.firstPage}><FontAwesomeIcon icon={faFastBackward} />First</ButtonUI>
-                    <ButtonUI disabled={currentPage === 1 ? true : false}
-                      onClick={this.prevPage}><FontAwesomeIcon icon={faStepBackward} />Prev</ButtonUI>
-                  </InputGroup.Prepend>
-                  <FormControl className={"pageNum bg-light"} style={{width:"10px"}} name="currentPage" value={currentPage}
-                    onChange={this.changePage} />
-                  <InputGroup.Append>
-                    <ButtonUI disabled={currentPage === totalPages ? true : false}
-                      onClick={this.nextPage}><FontAwesomeIcon icon={faStepForward} />Next</ButtonUI>
-                    <ButtonUI disabled={currentPage === totalPages ? true : false}
-                      onClick={this.lastPage}><FontAwesomeIcon icon={faFastForward} />Last</ButtonUI>
-                  </InputGroup.Append>
-                </InputGroup>
 
-              <div style={{ "float": "left" }}>
-                Showing Page {currentPage} of {totalPages}
-              </div>
-                      <center>
+
+
+            <center>
               <div className="d-flex flex row mt-5" style={{ width: "450px" }}>
                 <h6 className="pt-2">Sort By:</h6>
                 <select onClick={() => this.getBestSellerDataByFilterSort(this.state.categoriesNow)} onChange={(e) => this.setState({ orderBy: e.target.value })} style={{ width: "200px" }} className="form-control ml-4" name="Sort">
