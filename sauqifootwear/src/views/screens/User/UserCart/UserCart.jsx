@@ -6,7 +6,7 @@ import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import ButtonUI from "../../../components/Button/Button";
 import TextField from "../../../components/TextField/TextField";
-import { logoutHandler } from "../../../../redux/actions";
+import { logoutHandler , qtyCartHandler} from "../../../../redux/actions";
 import { UncontrolledCollapse, Button, CardBody, Card, Badge } from 'reactstrap';
 import { Table, Alert } from 'reactstrap'
 
@@ -53,6 +53,7 @@ class UserCart extends React.Component {
             console.log(res);
             swal('Delete to cart', 'Your item has been deleted from your cart', 'success')
             this.getItemCart();
+            this.props.onQtyCartHandler(this.props.user.id);
             // Axios.get(`${API_URL}/carts`, {
             //     params: {
             //       userId: this.props.user.id,
@@ -246,6 +247,7 @@ const mapStateToProps = (state) => {
 }
 
 const mapDispatchToProps = {
-}
+  onQtyCartHandler: qtyCartHandler,
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(UserCart);

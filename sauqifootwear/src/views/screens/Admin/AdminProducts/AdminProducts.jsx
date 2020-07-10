@@ -1,6 +1,6 @@
 import React from "react";
 import "./AdminProducts.css";
-import { Modal, ModalHeader, ModalBody } from "reactstrap";
+import { Modal, ModalHeader, ModalBody,Input } from "reactstrap";
 import Axios from "axios";
 import ButtonUI from "../../../components/Button/Button";
 import TextField from "../../../components/TextField/TextField";
@@ -38,6 +38,7 @@ class AdminProducts extends React.Component {
       stock: 0,
     },
     categoriesList: "",
+    selectImage: null,
     activeProducts: [],
     modalOpen: false,
   };
@@ -161,15 +162,31 @@ class AdminProducts extends React.Component {
     })
   }
 
+  fileChangeHandler = (e) => {
+    this.setState({ selectImage: e.target.files[0] });
+  };
+
   createProductHandler = () => {
-    Axios.post(`${API_URL}/products/addProduct`, this.state.createForm)
+
+    let formData = new FormData();
+    if (this.state.selectImage) {
+      formData.append(
+        "file",
+        this.state.selectImage,
+        this.state.selectImage.name
+      );
+    }
+    formData.append("productData", JSON.stringify(this.state.createForm));
+    console.log(this.state.createForm);
+    console.log(JSON.stringify(this.state.createForm));
+
+    Axios.post(`${API_URL}/products/addProduct`, formData)
       .then((res) => {
         swal("Success!", "Your item has been added to the list", "success");
         this.setState({
           createForm: {
             productName: "",
             price: null,
-            image: "",
             description: "",
             stock: null,
           }
@@ -314,19 +331,22 @@ class AdminProducts extends React.Component {
                 className="custom-text-input"
               ></textarea>
             </div>
-            <div className="col-6 mt-3">
-              <TextField
-                value={this.state.createForm.image}
-                placeholder="Image Source"
-                onChange={(e) => this.inputHandler(e, "image", "createForm")}
-              />
-            </div>
+            
             <div className="col-6 mt-3">
               <TextField
                 value={this.state.createForm.stock}
                 placeholder="Stock"
                 onChange={(e) => this.inputHandler(e, "stock", "createForm")}
               />
+            </div>
+            <div className="col-6 mt-2">
+              <Input className="mt-3 ml-4"
+                      type="file"
+                      name="file"
+                      onChange={(e) => {
+                        this.fileChangeHandler(e, "selectImage");
+                      }}
+                    />
             </div>
             <div className="col-3 mt-3">
               <ButtonUI onClick={this.createProductHandler} type="contained">

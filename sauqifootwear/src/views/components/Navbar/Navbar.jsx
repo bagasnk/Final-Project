@@ -1,4 +1,5 @@
 import React from "react";
+import Axios from 'axios';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShoppingCart, faSignInAlt, faSignOutAlt } from "@fortawesome/free-solid-svg-icons/";
 import { faUser } from "@fortawesome/free-regular-svg-icons";
@@ -9,6 +10,8 @@ import "./Navbar.css";
 import logoJapan from "../../../assets/images/Showcase/LogoJapanFair.jpeg"
 import { logoutHandler, SearchAndFilterHandler, qtyCartHandler } from "../../../redux/actions";
 import { connect } from "react-redux";
+
+const API_URL = `http://localhost:8080`;
 
 
 const CircleBg = ({ children }) => {
@@ -41,7 +44,6 @@ class Navbar extends React.Component {
     this.props.onLogout();
   };
 
-
   render() {
     return (
       <>
@@ -52,20 +54,20 @@ class Navbar extends React.Component {
 
           <div className="collapse navbar-collapse w-100 " id="navbarCollapse" >
 
-          <form className="form-inline ml-auto">
-                <div className="input-group">
-                  <input
-                    onFocus={this.onFocus}
-                    onBlur={this.onBlur}
-                    className={`search-bar ${this.state.searchBarIsFocused ? "active" : null}`}
-                    type="text"
-                    placeholder="Search ..."
-                  />
-                </div>
-              </form>
+            <form className="form-inline ml-auto">
+              <div className="input-group">
+                <input
+                  onFocus={this.onFocus}
+                  onBlur={this.onBlur}
+                  className={`search-bar ${this.state.searchBarIsFocused ? "active" : null}`}
+                  type="text"
+                  placeholder="Search ..."
+                />
+              </div>
+            </form>
 
             <ul className="navbar-nav ml-auto medium mb-2 mb-md-0" style={{ borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
-              
+
 
               {this.props.user.id ? (
                 <>
@@ -81,7 +83,7 @@ class Navbar extends React.Component {
                     />
                     <CircleBg>
                       <small style={{ color: "#3C64B1", fontWeight: "bold" }}>
-                        0
+                      {this.props.user.cartItemsCount}
                       </small>
                     </CircleBg>
                   </Link>
@@ -196,6 +198,7 @@ const mapStateToProps = (state) => {
 };
 const mapDispatchToProps = {
   onLogout: logoutHandler,
+  onQtyCartHandler: qtyCartHandler,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Navbar);

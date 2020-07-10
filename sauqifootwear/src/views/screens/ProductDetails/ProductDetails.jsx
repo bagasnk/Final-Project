@@ -34,7 +34,6 @@ class ProductDetails extends React.Component {
       }else{
         Axios.get(`${API_URL}/carts/user/${this.props.user.id}`)
         .then((res) => {
-        // console.log(res);
         this.setState({ cartDataUser: res.data });
         let checkItems = this.state.cartDataUser.findIndex((val) => {
           return (
@@ -42,7 +41,6 @@ class ProductDetails extends React.Component {
           )
         })
         if (checkItems == -1) {
-          // console.log(this.state.productData.id);
           Axios.post(
             `${API_URL}/carts/addCart/${this.props.user.id}/${this.state.productData.id}`,
             {
@@ -56,7 +54,7 @@ class ProductDetails extends React.Component {
                 "New item has been added to your cart",
                 "success"
               );
-              this.props.cartUpdate(this.props.user.id);
+              this.props.onQtyCartHandler(this.props.user.id);
             })
             .catch((err) => {
               console.log(err);
@@ -71,7 +69,6 @@ class ProductDetails extends React.Component {
           );
           Axios.put(`${API_URL}/carts/updateQty/${this.state.cartDataUser[checkItems].id}`)
             .then((resSameData) => {
-              // alert("masuk")
               console.log(resSameData)
             })
             .catch((err) => {
@@ -87,9 +84,9 @@ class ProductDetails extends React.Component {
             .then((res) => {
                 this.setState({ productData: res.data })
                 console.log(this.state.productData)
+                this.props.onQtyCartHandler(this.props.user.id);
 
                 // this.setState({ productData: { ...this.state.productData, ...res.data }})
-              //this.props.cartUpdate(this.props.user.id)
             })
             .catch((err) => {
                 console.log(err)

@@ -203,6 +203,7 @@ class Home extends React.Component {
 
   // get data paket + filter dan sort
   getBestSellerPaketByFilterSort = () => {
+
   }
 
   // get data products + filter dan sort
@@ -249,6 +250,7 @@ class Home extends React.Component {
 
   // data yang akan keluar dan diproses sekali saat pertama layar dijalankan
   componentDidMount() {
+    
     this.getBestSellerDataByFilterSort(this.state.categoriesNow, this.state.currentPage)
     this.showCategory();
   }
