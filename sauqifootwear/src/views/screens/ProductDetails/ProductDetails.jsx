@@ -41,8 +41,7 @@ class ProductDetails extends React.Component {
           )
         })
         if (checkItems == -1) {
-          Axios.post(
-            `${API_URL}/carts/addCart/${this.props.user.id}/${this.state.productData.id}`,
+          Axios.post(`${API_URL}/carts/addCart/${this.props.user.id}/${this.state.productData.id}`,
             {
               quantity: 1,
             }

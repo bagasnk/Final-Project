@@ -1,11 +1,16 @@
 import React from "react";
 import "./AdminProducts.css";
-import { Modal, ModalHeader, ModalBody,Input } from "reactstrap";
+import { Modal, ModalHeader, ModalBody, Input } from "reactstrap";
 import Axios from "axios";
 import ButtonUI from "../../../components/Button/Button";
 import TextField from "../../../components/TextField/TextField";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faStepBackward, faFastBackward, faStepForward, faFastForward, faTimes } from "@fortawesome/free-solid-svg-icons/";
+import { Card, Table, Image, ButtonGroup, Button, InputGroup, FormControl } from "react-bootstrap";
+
 
 import swal from "sweetalert";
+import { faXingSquare } from "@fortawesome/free-brands-svg-icons";
 
 
 const API_URL = `http://localhost:8080`;
@@ -14,6 +19,7 @@ class AdminProducts extends React.Component {
   state = {
     productList: [],
     categoryList: [],
+    productListALL: [],
     productNow: "",
     categoriesNow: "",
 
@@ -21,7 +27,7 @@ class AdminProducts extends React.Component {
       productName: "",
       price: null,
       image: "",
-      description: "",  
+      description: "",
       stock: null,
     },
 
@@ -41,14 +47,84 @@ class AdminProducts extends React.Component {
     selectImage: null,
     activeProducts: [],
     modalOpen: false,
+    currentPage: 0,
+    itemsPerPage: 5,
+    totalPages: 0,
+    totalElements: 0,
+    productNameNow: "",
   };
 
-  getProductList = () => {
-    Axios.get(`${API_URL}/products`)
+  changePage = event => {
+    let targetPage = parseInt(event.target.value)
+    if (this.state.activePage == "product") {
+      this.getBestSellerDataByFilterSort(this.state.categoriesNow, targetPage);
+    } else {
+      this.getBestSellerPaketByFilterSort(this.state.categoriesNow, targetPage);
+    }
+    this.setState({
+      [event.target.name]: targetPage
+    })
+  }
+
+
+  // button untuk balik ke page pertama 
+  firstPage = () => {
+    let firstPage = 1;
+    if (this.state.currentPage > firstPage) {
+      this.getProductList(firstPage)
+    }
+  }
+
+  // button untuk kembali ke page sebelumnya
+  prevPage = () => {
+    let prevPage = 1;
+    if (this.state.currentPage > prevPage) {
+      this.getProductList(this.state.currentPage - prevPage)
+    }
+  }
+
+  // button untuk maju ke page selanjutnya
+  nextPage = () => {
+    if (this.state.currentPage < Math.ceil(this.state.totalElements / this.state.itemsPerPage)) {
+      this.getProductList(this.state.currentPage + 1)
+    }
+  }
+
+  // button untuk maju ke page terakhir
+  lastPage = () => {
+    let condition = Math.ceil(this.state.totalElements / this.state.itemsPerPage)
+    if (this.state.currentPage < condition) {
+      this.getProductList(condition)
+    }
+  }
+
+
+  getProductList = (currentPage) => {
+    currentPage -= 1
+    Axios.get(`${API_URL}/products/pages?productName=${this.state.productNameNow}&page=${currentPage}&size=5`)
       .then((res) => {
-        this.setState({ productList: res.data });
+        this.setState({
+          productList: res.data.content,
+          totalPages: res.data.totalPages,
+          totalElements: res.data.totalElements,
+          currentPage: res.data.number + 1
+        });
         console.log(res.data)
         //console.log(this.state.productList[0].categories)
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  getProductListALL = () => {
+    Axios.get(`${API_URL}/products`)
+      .then((res) => {
+        this.setState({
+          productListALL: res.data
+
+        });
+        console.log(res.data)
       })
       .catch((err) => {
         console.log(err);
@@ -99,16 +175,19 @@ class AdminProducts extends React.Component {
                     <h6 className="mt-2">
                       Category:
                     {categories.map((value, idx) => {
-                      if (idx == 0) {
-                        return (
-                          <span style={{ fontWeight: "normal" }}> {value.nama} </span>
-                        )
-                      } else {
-                        return (
-                          <span style={{ fontWeight: "normal" }}>, {value.nama} </span>
-                        )
-                      }
-                    })}
+
+                      return (
+                        <div className="row">
+                          <div className="col-6">
+                            <span className="ml-2" style={{ fontWeight: "normal" }}> {value.nama} </span>
+                          </div>
+                          <div className="col-6">
+                            <FontAwesomeIcon icon={faTimes} onClick={(_) => this.deleteCategoriesBtnHandler(id, value.id)} />
+                          </div>
+                        </div>
+                      )
+                    }
+                    )}
                     </h6>
                     <h6>
                       Price:
@@ -191,8 +270,7 @@ class AdminProducts extends React.Component {
             stock: null,
           }
         });
-
-        this.getProductList();
+        this.getProductList(this.state.currentPage);
       })
       .catch((err) => {
         swal("Error!", "Your item could not be added to the list", "error");
@@ -207,7 +285,7 @@ class AdminProducts extends React.Component {
           .then((res) => {
             swal("Success!", "Your Category has been added to Products", "success");
             console.log(res.data)
-            this.getProductList();
+            this.getProductList(this.state.currentPage);
           })
           .catch((err) => {
             console.log(err)
@@ -239,7 +317,6 @@ class AdminProducts extends React.Component {
 
   componentDidUpdate() {
     this.showCategory();
-
   }
 
   editBtnHandler = (idx) => {
@@ -255,7 +332,18 @@ class AdminProducts extends React.Component {
     Axios.delete(`${API_URL}/products/${id}`)
       .then((res) => {
         swal("Success!", "Your item has been deleted", "success");
-        this.getProductList()
+        this.getProductList(this.state.currentPage)
+      })
+      .then((err) => {
+        console.log(err)
+      })
+  }
+
+  deleteCategoriesBtnHandler = (productId, categoriesId) => {
+    Axios.delete(`${API_URL}/products/${productId}/categories/${categoriesId}`)
+      .then((res) => {
+        swal("Success!", "Your item has been deleted", "success");
+        this.getProductList(this.state.currentPage)
       })
       .then((err) => {
         console.log(err)
@@ -263,12 +351,22 @@ class AdminProducts extends React.Component {
   }
 
   editProductHandler = () => {
+    let formData = new FormData();
+    if (this.state.selectImage) {
+      formData.append(
+        "file",
+        this.state.selectImage,
+        this.state.selectImage.name
+      );
+    }
+
+    formData.append("productData", JSON.stringify(this.state.editForm));
     Axios.put(
-      `${API_URL}/products/edit`, this.state.editForm)
+      `${API_URL}/products/edit/${this.state.editForm.id}`, formData)
       .then((res) => {
         swal("Success!", "Your item has been edited", "success");
         this.setState({ modalOpen: false });
-        this.getProductList();
+        this.getProductList(this.state.currentPage);
       })
       .catch((err) => {
         swal("Error!", "Your item could not be edited", "error");
@@ -280,7 +378,8 @@ class AdminProducts extends React.Component {
   };
 
   componentDidMount() {
-    this.getProductList();
+    this.getProductListALL();
+    this.getProductList(this.state.currentPage);
     this.showCategory();
   }
 
@@ -291,6 +390,15 @@ class AdminProducts extends React.Component {
           <caption className="p-3">
             <h2>Products</h2>
           </caption>
+
+          <div className="col-3 mb-2">
+            <TextField
+              placeholder="Nama Product"
+              onChange={(e) => this.setState({ productNameNow: e.target.value })}
+              onKeyUp={() => this.getProductList(this.state.currentPage)}
+            />
+          </div>
+
           <table className="dashboard-table">
             <thead>
               <tr>
@@ -302,6 +410,22 @@ class AdminProducts extends React.Component {
             </thead>
             <tbody>{this.renderProductList()}</tbody>
           </table>
+          <div>
+            Showing Page {this.state.currentPage} of {this.state.totalPages}
+          </div>
+          <div className="row justify-content-center mt-3 pt-2">
+            <ButtonUI disabled={this.state.currentPage === 1 ? true : false}
+              onClick={this.firstPage}><FontAwesomeIcon icon={faFastBackward} />First</ButtonUI>
+            <ButtonUI disabled={this.state.currentPage === 1 ? true : false}
+              onClick={this.prevPage}><FontAwesomeIcon icon={faStepBackward} />Prev</ButtonUI>
+            <FormControl className={"page-num bg-light"} name="currentPage" value={this.state.currentPage}
+              onChange={this.changePage} />
+            <ButtonUI disabled={this.state.currentPage === this.state.totalPages ? true : false}
+              onClick={this.nextPage}><FontAwesomeIcon icon={faStepForward} />Next</ButtonUI>
+            <ButtonUI disabled={this.state.currentPage === this.state.totalPages ? true : false}
+              onClick={this.lastPage}><FontAwesomeIcon icon={faFastForward} />Last</ButtonUI>
+          </div>
+
         </div>
         <div className="dashboard-form-container p-4">
           <caption className="mb-4 mt-2">
@@ -331,7 +455,7 @@ class AdminProducts extends React.Component {
                 className="custom-text-input"
               ></textarea>
             </div>
-            
+
             <div className="col-6 mt-3">
               <TextField
                 value={this.state.createForm.stock}
@@ -341,12 +465,12 @@ class AdminProducts extends React.Component {
             </div>
             <div className="col-6 mt-2">
               <Input className="mt-3 ml-4"
-                      type="file"
-                      name="file"
-                      onChange={(e) => {
-                        this.fileChangeHandler(e, "selectImage");
-                      }}
-                    />
+                type="file"
+                name="file"
+                onChange={(e) => {
+                  this.fileChangeHandler(e, "selectImage");
+                }}
+              />
             </div>
             <div className="col-3 mt-3">
               <ButtonUI onClick={this.createProductHandler} type="contained">
@@ -387,7 +511,7 @@ class AdminProducts extends React.Component {
               >
                 <option value="" disabled>Select Product</option>
 
-                {this.state.productList.map((val) => {
+                {this.state.productListALL.map((val) => {
                   return (
                     <option value={val.id}>{val.productName}</option>
                   )
@@ -429,7 +553,7 @@ class AdminProducts extends React.Component {
           <ModalBody>
             <div className="row">
               <div className="col-12">
-                Nama Product : 
+                Nama Product :
                 <TextField
                   value={this.state.editForm.productName}
                   placeholder="Product Name"
@@ -438,17 +562,17 @@ class AdminProducts extends React.Component {
                   }
                 />
               </div>
-              
+
               <div className="col-6">
-                  Stock : 
+                Stock :
                   <TextField
-                    value={this.state.editForm.stock}
-                    placeholder="Stock"
-                    onChange={(e) => this.inputHandler(e, "stock", "editForm")}
-                  />
-                </div>
-                <div className="col-6">
-                Price : 
+                  value={this.state.editForm.stock}
+                  placeholder="Stock"
+                  onChange={(e) => this.inputHandler(e, "stock", "editForm")}
+                />
+              </div>
+              <div className="col-6">
+                Price :
                 <TextField
                   value={this.state.editForm.price}
                   placeholder="Price"
@@ -456,7 +580,7 @@ class AdminProducts extends React.Component {
                 />
               </div>
               <div className="col-12 mt-3">
-                Description : 
+                Description :
                 <textarea
                   value={this.state.editForm.description}
                   onChange={(e) => this.inputHandler(e, "description", "editForm")}
@@ -467,10 +591,12 @@ class AdminProducts extends React.Component {
               </div>
               <div className="col-6 mt-3">
                 Image :
-                <TextField
-                  value={this.state.editForm.image}
-                  placeholder="Image Source"
-                  onChange={(e) => this.inputHandler(e, "image", "editForm")}
+                <Input className="mt-3 ml-4"
+                  type="file"
+                  name="file"
+                  onChange={(e) => {
+                    this.fileChangeHandler(e, "selectImage");
+                  }}
                 />
               </div>
               <div className="col-12 text-center my-3">
