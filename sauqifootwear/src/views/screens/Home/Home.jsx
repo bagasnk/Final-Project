@@ -57,7 +57,7 @@ class Home extends React.Component {
     activePage: "product",
     currentPage: 0,
     currentPagePaket: 0,
-    itemsPerPage: 2,
+    itemsPerPage: 6,
     totalPages: 0,
     totalElements: 0,
   };
@@ -210,7 +210,7 @@ class Home extends React.Component {
   getBestSellerDataByFilterSort = (val, currentPage) => {
     currentPage -= 1
     if (val == "All") {
-      Axios.get(`${API_URL}/products/${this.state.minPriceNow}/${this.state.maxPriceNow}/${this.state.orderBy}/${this.state.sortList}/?productName=${this.state.productNameNow}&page=${currentPage}&size=2`)
+      Axios.get(`${API_URL}/products/${this.state.minPriceNow}/${this.state.maxPriceNow}/${this.state.orderBy}/${this.state.sortList}/?productName=${this.state.productNameNow}&page=${currentPage}&size=6`)
         .then((res) => {
           this.setState({
             bestSellerDataNew: res.data.content,
@@ -224,7 +224,7 @@ class Home extends React.Component {
           console.log(err)
         })
     } else {
-      Axios.get(`${API_URL}/products/${this.state.minPriceNow}/category/${this.state.maxPriceNow}/${this.state.orderBy}/${this.state.sortList}/?productName=${this.state.productNameNow}&nama=${val}&page=${currentPage}&size=2`)
+      Axios.get(`${API_URL}/products/${this.state.minPriceNow}/category/${this.state.maxPriceNow}/${this.state.orderBy}/${this.state.sortList}/?productName=${this.state.productNameNow}&nama=${val}&page=${currentPage}&size=6`)
         .then((res) => {
           this.setState({
             bestSellerDataNew: res.data.content,

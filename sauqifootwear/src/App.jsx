@@ -21,6 +21,7 @@ import "bootstrap/dist/css/bootstrap.css";
 import PageNotFound from "./views/screens/Pagenotfound/PageNotFound"
 import AdminProducts from "./views/screens/Admin/AdminProducts/AdminProducts";
 import AdminMembers from "./views/screens/Admin/AdminMembers/AdminMembers";
+import AdminPayments from "./views/screens/Admin/AdminPayments/AdminPayments";
 
 
 const cookiesObject = new Cookie();
@@ -42,6 +43,7 @@ class App extends React.Component {
         <Switch>
         <Route exact path="/admin/products" component={AdminProducts} />
         <Route exact path="/admin/members" component={AdminMembers}/>
+        <Route exact path="/admin/payments" component={AdminPayments}/>
         </Switch>
       )
     }else{

@@ -16,7 +16,7 @@ class NavbarBot extends React.Component {
 
   render() {
     return (
-      <div className="bg-warning p-4 mt-5 mb-0">
+      <div className="bg-warning p-4 mt-5 mb-0" style={{ maxHeight:"auto"}}>
         <div className="row">
           <div className="col-12 col-sm-12 col-md-12 col-lg-4 col-xl-4 cizgi">
             <div className="card bg-warning border-0">

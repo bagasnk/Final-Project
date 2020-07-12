@@ -270,7 +270,9 @@ class AdminProducts extends React.Component {
             stock: null,
           }
         });
+        
         this.getProductList(this.state.currentPage);
+        this.getProductListALL();
       })
       .catch((err) => {
         swal("Error!", "Your item could not be added to the list", "error");
@@ -301,6 +303,7 @@ class AdminProducts extends React.Component {
           createCategoriesForm: {
             nama: "",
           },
+
         });
       })
       .catch((err) => {

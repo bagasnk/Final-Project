@@ -93,7 +93,7 @@ class ProductDetails extends React.Component {
     }
 
     render() {
-        const { productName, image, price, desc, categories, id } = this.state.productData
+        const { productName, image, price, desc, categories, id , description} = this.state.productData
         return (
             <div className="container">
                 <div className="row mt-4 pt-4"> 
@@ -120,14 +120,13 @@ class ProductDetails extends React.Component {
                             }
                           })
                         }
-
                         </div>
                         <h4>
                             {
-                                new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(price)
+                              new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(price)
                             }
                         </h4>
-                        <p className="mt-4">{desc}</p>
+                        <p className="mt-4">{description}</p>
                         <div className="d-flex mt-4">
                             <ButtonUI onClick={this.addToCartHandler}>Add to Cart</ButtonUI>
                             

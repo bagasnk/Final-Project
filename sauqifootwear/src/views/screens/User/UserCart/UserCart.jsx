@@ -24,7 +24,8 @@ class UserCart extends React.Component {
     quantity: "",
     datePayments: new Date(),
     jasaPengiriman: "0",
-    datePayments: new Date()
+    datePayments: new Date(),
+    
   }
 
   inputHandler = (e, field) => {
