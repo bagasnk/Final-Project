@@ -5,6 +5,8 @@ import swal from 'sweetalert';
 import "./AdminPayments.css"
 import { Table } from "reactstrap";
 import { Modal, ModalHeader, ModalBody } from "reactstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faStepBackward, faFastBackward, faStepForward, faFastForward, faTimes } from "@fortawesome/free-solid-svg-icons/";
 
 
 const API_URL = `http://localhost:8080`;
@@ -17,9 +19,13 @@ class AdminPayments extends React.Component {
     activeProducts: [],
     activeProductsSuccess: [],
     activeProductsReject: [],
+    activeProductsRejectP: [],
     modalOpen: false,
     modalOpenCheck: false,
-    status: "pending"
+    status: "pending",
+    formEmail: {
+      email: "",
+    },
   }
 
   toggleModalCheck = () => {
@@ -67,14 +73,37 @@ class AdminPayments extends React.Component {
       })
   }
 
-  rejectBtnHandler = (transactionId) => {
+  rejectPermanentHandler = (transactionId) => {
     Axios.patch(`${API_URL}/transaction/editTransaction/${transactionId}`, {
-      status: "reject",
-      //tanggalAcc: this.state.datePayments.toLocaleDateString(),
+      status: "rejectPermanent",
     })
       .then((res) => {
         this.getPaymentsList(this.state.status)
         swal("Success!", "Berhasil", "success");
+
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+  }
+
+  rejectBtnHandler = (transactionId) => {
+    Axios.patch(`${API_URL}/transaction/editTransaction/${transactionId}`, {
+      status: "reject",
+      tanggalReject: this.state.datePayments.toLocaleDateString(),
+    })
+      .then((res) => {
+        this.getPaymentsList(this.state.status)
+        swal("Success!", "Berhasil", "success");
+        const { formEmail } = this.state;
+        console.log(formEmail);
+        Axios.post(`${API_URL}/transaction/sendEmailReject/${transactionId}`, formEmail)
+          .then((res) => {
+            console.log(res.data);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
 
       })
       .catch((err) => {
@@ -114,7 +143,7 @@ class AdminPayments extends React.Component {
                     activeProductsSuccess: [...this.state.activeProductsSuccess, idx],
                   });
                 }
-              } else {
+              } else if (this.state.status == "reject") {
                 if (this.state.activeProductsReject.includes(idx)) {
                   this.setState({
                     activeProductsReject: [
@@ -124,6 +153,18 @@ class AdminPayments extends React.Component {
                 } else {
                   this.setState({
                     activeProductsReject: [...this.state.activeProductsReject, idx],
+                  });
+                }
+              } else {
+                if (this.state.activeProductsRejectP.includes(idx)) {
+                  this.setState({
+                    activeProductsRejectP: [
+                      ...this.state.activeProductsRejectP.filter((item) => item !== idx),
+                    ],
+                  });
+                } else {
+                  this.setState({
+                    activeProductsRejectP: [...this.state.activeProductsRejectP, idx],
                   });
                 }
               }
@@ -156,32 +197,47 @@ class AdminPayments extends React.Component {
               <td> {val.tanggalReject}</td>
               : null
             }
-            <div className="row ml-5 justify-content-center">
-              {this.state.status == "pending" ?
-                <>
-                  <ButtonUI
-                    onClick={(_) => this.confirmBtnHandler(val.id)}
-                    type="contained"
-                  >
-                    Confirm
+            <center>
+              <div className="row ml-5 justify-content-center">
+                {this.state.status != "success" && this.state.status != "rejectPermanent" ?
+                  <>
+                    <ButtonUI
+                      onClick={(_) => this.confirmBtnHandler(val.id)}
+                      type="contained"
+                    >
+                      Confirm
                   </ButtonUI>
 
-                  <ButtonUI
-                    onClick={(_) => this.rejectBtnHandler(val.id)}
-                    type="contained"
-                  >
-                    Reject
+                    <ButtonUI
+                      onClick={(_) => this.rejectBtnHandler(val.id)}
+                      type="contained"
+                    >
+                      Reject
                   </ButtonUI>
-                </>
-                : null}
-            </div>
+
+                  </>
+                  : null}
+                {this.state.status == "reject" ?
+                  <>
+                    <span>Reject Permanent ?<br /><FontAwesomeIcon icon={faTimes} onClick={(_) => this.rejectPermanentHandler(val.id)} /> </span>
+
+                  </>
+                  : null}
+              </div>
+            </center>
           </tr>
           <>
             {val.transactionDetails.map((val, index) => {
               return (
                 <tr
-                  className={`collapse-item ${this.state.status == "pending" ?
-                    this.state.activeProducts.includes(idx) ? "active" : null : this.state.activeProductsSuccess.includes(idx) ? "active" : null
+                  className={`collapse-item 
+                  ${this.state.status == "pending" ?
+                      this.state.activeProducts.includes(idx) ? "active" : null
+                      : this.state.status == "success" ?
+                        this.state.activeProductsSuccess.includes(idx) ? "active" : null
+                        : this.state.status == "reject" ?
+                          this.state.activeProductsReject.includes(idx) ? "active" : null
+                          : this.state.activeProductsRejectP.includes(idx) ? "active" : null
                     }`}
                 >
                   <td colSpan={6}>
@@ -234,7 +290,7 @@ class AdminPayments extends React.Component {
         <div className="container py-4">
           <div className="dashboard">
             <caption className="p-3">
-              <h2>Products</h2>
+              <h2>Transaction</h2>
             </caption>
             <div className="d-flex justify-content-center">
               <ButtonUI
@@ -264,6 +320,15 @@ class AdminPayments extends React.Component {
               >
                 Reject
                         </ButtonUI>
+              <ButtonUI
+                className={`nav-atas-btn ${
+                  this.state.status == "rejectPermanent" ? "active" : null
+                  } ml-4`}
+                type="outlined"
+                onClick={() => this.getPaymentsList("rejectPermanent")}
+              >
+                Reject Permanent
+                        </ButtonUI>
             </div>
             <Table className="dashboard-table">
               <thead>
@@ -282,7 +347,10 @@ class AdminPayments extends React.Component {
                     <th>Date Transaksi Reject</th>
                     : null
                   }
-                  <th >Action</th>
+                  {this.state.status != "success" && this.state.status != "rejectPermanent" ?
+                    <th>Action</th>
+                    : null
+                  }
                 </tr>
               </thead>
               <tbody>{this.renderProductList()}</tbody>

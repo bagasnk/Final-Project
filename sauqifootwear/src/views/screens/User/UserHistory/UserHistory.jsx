@@ -18,6 +18,8 @@ class UserHistory extends React.Component {
     listDetail: [],
     activeProducts: [],
     activeProductsSuccess: [],
+    activeProductsReject: [],
+    activeProductsRejectP: [],
     status: "pending",
     selectImage: null,
     modalOpen: false,
@@ -122,7 +124,7 @@ class UserHistory extends React.Component {
               }).format(val.totalPrice)}
             </span></td>
             <td>{val.status}</td>
-            
+
             <td>
               <div className="d-flex flex-column pl-4 ml-4">
                 <div className="row">
@@ -142,7 +144,7 @@ class UserHistory extends React.Component {
                             activeProducts: [...this.state.activeProducts, idx],
                           });
                         }
-                      } else {
+                      } else if (this.state.status == "success") {
                         if (this.state.activeProductsSuccess.includes(idx)) {
                           this.setState({
                             activeProductsSuccess: [
@@ -154,13 +156,37 @@ class UserHistory extends React.Component {
                             activeProductsSuccess: [...this.state.activeProductsSuccess, idx],
                           });
                         }
+                      } else if (this.state.status == "reject") {
+                        if (this.state.activeProductsReject.includes(idx)) {
+                          this.setState({
+                            activeProductsReject: [
+                              ...this.state.activeProductsReject.filter((item) => item !== idx),
+                            ],
+                          });
+                        } else {
+                          this.setState({
+                            activeProductsReject: [...this.state.activeProductsReject, idx],
+                          });
+                        }
+                      } else {
+                        if (this.state.activeProductsRejectP.includes(idx)) {
+                          this.setState({
+                            activeProductsRejectP: [
+                              ...this.state.activeProductsRejectP.filter((item) => item !== idx),
+                            ],
+                          });
+                        } else {
+                          this.setState({
+                            activeProductsRejectP: [...this.state.activeProductsRejectP, idx],
+                          });
+                        }
                       }
                     }}
                   >
                     Details
                     </ButtonUI>
                   <div className="row">
-                    {val.buktiTrf != "" ?
+                    {val.buktiTrf != "" && this.state.status != "success" ?
                       <ButtonUI
                         onClick={(_) => this.checkBuktiHandler(val.buktiTrf)}
                         type="contained">
@@ -168,7 +194,7 @@ class UserHistory extends React.Component {
                     </ButtonUI> : null}
 
 
-                    {this.state.status == "pending" && "reject" ?
+                    {this.state.status != "success" ?
                       <ButtonUI
                         onClick={(_) => this.uploadPhotoHandler(val.id)}
                         type="contained">
@@ -183,8 +209,14 @@ class UserHistory extends React.Component {
           {val.transactionDetails.map((val, index) => {
             return (
               <tr
-                className={`collapse-item ${this.state.status == "pending" ?
-                  this.state.activeProducts.includes(idx) ? "active" : null : this.state.activeProductsSuccess.includes(idx) ? "active" : null
+                className={`collapse-item 
+                  ${this.state.status == "pending" ?
+                    this.state.activeProducts.includes(idx) ? "active" : null
+                    : this.state.status == "success" ?
+                      this.state.activeProductsSuccess.includes(idx) ? "active" : null
+                      : this.state.status == "reject" ?
+                        this.state.activeProductsReject.includes(idx) ? "active" : null
+                        : this.state.activeProductsRejectP.includes(idx) ? "active" : null
                   }`}
               >
                 <td colSpan={6}>
@@ -267,6 +299,15 @@ class UserHistory extends React.Component {
                 onClick={() => this.getDataTransaksi("reject")}
               >
                 Reject
+                        </ButtonUI>
+              <ButtonUI
+                className={`nav-atas-btn ${
+                  this.state.status == "rejectPermanent" ? "active" : null
+                  } ml-4`}
+                type="outlined"
+                onClick={() => this.getDataTransaksi("rejectPermanent")}
+              >
+                Reject Permanent
                         </ButtonUI>
             </div>
           </div>

@@ -269,7 +269,7 @@ class Home extends React.Component {
                 <ButtonUI disabled={currentPage === 1 ? true : false}
                   onClick={this.prevPage}><FontAwesomeIcon icon={faStepBackward} />Prev</ButtonUI>
               </InputGroup.Prepend>
-              <FormControl className={"page-num bg-light"} name="currentPage" value={currentPage}
+              <FormControl style={{alignSelf:"center"}} className={"page-num bg-light"} name="currentPage" value={currentPage}
                 onChange={this.changePage} />
               <InputGroup.Append>
                 <ButtonUI disabled={currentPage === totalPages ? true : false}

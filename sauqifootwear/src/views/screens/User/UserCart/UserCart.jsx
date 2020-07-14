@@ -49,8 +49,8 @@ class UserCart extends React.Component {
     }
   }
 
-  deleteItemCart = (id) => {
-    Axios.delete(`${API_URL}/carts/${id}`)
+  deleteItemCart = (id,productId) => {
+    Axios.delete(`${API_URL}/carts/${id}/${productId}`)
       .then((res) => {
         console.log(res);
         swal('Delete to cart', 'Your item has been deleted from your cart', 'success')
@@ -130,7 +130,7 @@ class UserCart extends React.Component {
             <div className="d-flex justify-content-center">
               <ButtonUI
                 type="contained"
-                onClick={() => this.deleteItemCart(val.id)}>
+                onClick={() => this.deleteItemCart(val.id,val.product.id)}>
                 Delete
                     </ButtonUI>
             </div>
