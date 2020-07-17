@@ -22,13 +22,14 @@ class AdminProducts extends React.Component {
     productListALL: [],
     productNow: "",
     categoriesNow: "",
+    productId:0,
 
     createForm: {
       productName: "",
       price: null,
       image: "",
       description: "",
-      stock: null,
+      stockGudang: null,
     },
 
     createCategoriesForm: {
@@ -41,7 +42,7 @@ class AdminProducts extends React.Component {
       price: 0,
       image: "",
       description: "",
-      stock: 0,
+      stockGudang: 0,
     },
     categoriesList: "",
     selectImage: null,
@@ -133,7 +134,7 @@ class AdminProducts extends React.Component {
 
   renderProductList = () => {
     return this.state.productList.map((val, idx) => {
-      const { id, productName, price, categories, image, description, stock } = val;
+      const { id, productName, price, categories, image, description, stockGudang } = val;
       return (
         <>
           <tr
@@ -152,7 +153,7 @@ class AdminProducts extends React.Component {
             }}>
             <td> {id} </td>
             <td> {productName} </td>
-            <td> {stock} </td>
+            <td> {stockGudang} </td>
             <td>
               {" "}
               {new Intl.NumberFormat("id-ID", {
@@ -225,7 +226,7 @@ class AdminProducts extends React.Component {
     });
   };
 
-  inputHandler = (e, field, form) => {
+  inputHandler = (e, field, form, idx) => {
     let { value } = e.target;
     this.setState({
       [form]: {
@@ -267,7 +268,7 @@ class AdminProducts extends React.Component {
             productName: "",
             price: null,
             description: "",
-            stock: null,
+            stockGudang: null,
           }
         });
         
@@ -328,6 +329,7 @@ class AdminProducts extends React.Component {
         ...this.state.productList[idx],
       },
       modalOpen: true,
+      productId : idx
     });
   };
 
@@ -365,7 +367,11 @@ class AdminProducts extends React.Component {
 
     formData.append("productData", JSON.stringify(this.state.editForm));
     Axios.put(
-      `${API_URL}/products/edit/${this.state.editForm.id}`, formData)
+      `${API_URL}/products/edit/${this.state.editForm.id}`, formData , {
+        params:{
+          stockGudangFE : this.state.productList[this.state.productId].stockGudang
+        }
+      })
       .then((res) => {
         swal("Success!", "Your item has been edited", "success");
         this.setState({ modalOpen: false });
@@ -461,9 +467,9 @@ class AdminProducts extends React.Component {
 
             <div className="col-6 mt-3">
               <TextField
-                value={this.state.createForm.stock}
-                placeholder="Stock"
-                onChange={(e) => this.inputHandler(e, "stock", "createForm")}
+                value={this.state.createForm.stockGudang}
+                placeholder="stockGudang"
+                onChange={(e) => this.inputHandler(e, "stockGudang", "createForm")}
               />
             </div>
             <div className="col-6 mt-2">
@@ -567,11 +573,11 @@ class AdminProducts extends React.Component {
               </div>
 
               <div className="col-6">
-                Stock :
+                stockGudang :
                   <TextField
-                  value={this.state.editForm.stock}
-                  placeholder="Stock"
-                  onChange={(e) => this.inputHandler(e, "stock", "editForm")}
+                  value={this.state.editForm.stockGudang}
+                  placeholder="stockGudang"
+                  onChange={(e) => this.inputHandler(e, "stockGudang", "editForm")}
                 />
               </div>
               <div className="col-6">

@@ -66,6 +66,15 @@ class AdminPayments extends React.Component {
       .then((res) => {
         this.getPaymentsList(this.state.status)
         swal("Success!", "Berhasil", "success");
+        const { formEmail } = this.state;
+        console.log(formEmail);
+        Axios.post(`${API_URL}/transaction/sendEmailSuccess/${transactionId}`, formEmail)
+          .then((res) => {
+            console.log(res.data);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
 
       })
       .catch((err) => {
@@ -80,6 +89,15 @@ class AdminPayments extends React.Component {
       .then((res) => {
         this.getPaymentsList(this.state.status)
         swal("Success!", "Berhasil", "success");
+        const { formEmail } = this.state;
+        console.log(formEmail);
+        Axios.post(`${API_URL}/transaction/sendEmailRejectPermanent/${transactionId}`, formEmail)
+          .then((res) => {
+            console.log(res.data);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
 
       })
       .catch((err) => {
