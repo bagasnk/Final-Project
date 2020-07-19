@@ -81,6 +81,7 @@ class AuthRegister extends React.Component {
   }
 
   render() {
+    const { username, fullname, password, email, address } = this.state.registerForm
     return (
       <div className="container">
         <div className="justify-content-around row mt-5">
@@ -151,6 +152,7 @@ class AuthRegister extends React.Component {
             ) : null}
           </div>
           <div className="d-flex justify-content-center">
+          { username && fullname && password && email && address  ? (
             <ButtonUI
               onClick={this.postDataHandler}
               type="contained"
@@ -158,6 +160,18 @@ class AuthRegister extends React.Component {
             >
               Register
                             </ButtonUI>
+          ):(
+            <button
+              disabled
+              onClick={this.postDataHandler}
+              className="mt-4 btn-block"
+            >
+              Register
+                            </button>
+          )
+          } 
+
+            
           </div>
         </div>
       </div>
