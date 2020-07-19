@@ -53,16 +53,16 @@ class AdminReports extends React.Component {
     if (val == "All") {
       Axios.get(`${API_URL}/products/report/${this.state.minPriceNow}/${this.state.maxPriceNow}/?productName=${this.state.productNameNow}&sortList=${this.state.sortList}`)
         .then((res) => {
+          console.log(res.data)
+          console.log("INI TANPA CATEGORY")
           res.data.map((value, idx) => {
             this.setState({
               objek: {
                 labels: [...this.state.objek.labels, value.productName],
                 datasets: [
                   {
-                    label: 'Sold',
-                    backgroundColor: `rgba(75,192,192,1)`,
-                    borderColor: 'rgba(255, 99, 132,1)',
-                    borderWidth: 5,
+                    label: "sold",
+                    backgroundColor: "blue",
                     data: [...this.state.objek.datasets[0].data, value.sold]
                   }
                 ]
@@ -74,18 +74,18 @@ class AdminReports extends React.Component {
           console.log(err)
         })
     } else {
-      Axios.get(`${API_URL}/products/${this.state.minPriceNow}/category/${this.state.maxPriceNow}?productName=${this.state.productNameNow}&nama=${val}&sortList=${this.state.sortList}`)
+      Axios.get(`${API_URL}/products/report/${this.state.minPriceNow}/category/${this.state.maxPriceNow}?productName=${this.state.productNameNow}&nama=${val}&sortList=${this.state.sortList}`)
         .then((res) => {
+          console.log("INI CATEGORY")
+
           res.data.map((value) => {
             this.setState({
               objek: {
                 labels: [...this.state.objek.labels, value.productName],
                 datasets: [
                   {
-                    label: 'Sold',
-                    backgroundColor: `rgba(75,192,192,1)`,
-                    borderColor: 'rgba(255, 99, 132,1)',
-                    borderWidth: 5,
+                    label: "Sold",
+                    backgroundColor: "blue",
                     data: [...this.state.objek.datasets[0].data, value.sold]
                   }
                 ]
@@ -107,7 +107,7 @@ class AdminReports extends React.Component {
         options={{
           title: {
             display: true,
-            text: 'Terjual',
+            text: "Chart Penjualan",
             fontSize: 20,
           },
           legend: {
@@ -138,7 +138,7 @@ class AdminReports extends React.Component {
                   <TextField
                     placeholder="Min price"
                     onChange={(e) => this.setState({ minPriceNow: +e.target.value })}
-                    onKeyUp={() => this.showCategory(this.state.categoriesNow)}
+                    onKeyUp={() => this.showChartData(this.state.categoriesNow)}
                   />
                 </div>
                 <h1>-</h1>
@@ -146,12 +146,12 @@ class AdminReports extends React.Component {
                   <TextField
                     placeholder="Max price"
                     onChange={(e) => this.setState({ maxPriceNow: +e.target.value })}
-                    onKeyUp={() => this.showCategory(this.state.categoriesNow)}
+                    onKeyUp={() => this.showChartData(this.state.categoriesNow)}
                   />
                 </div>
                 <select
                   className="custom-text-input h-100 pl-3 mt-1 pt-3"
-                  onClick={(e) => { this.showCategory(this.state.categoriesNow) }}
+                  onClick={(e) => { this.showChartData(this.state.categoriesNow) }}
                   onChange={(e) => this.setState({ categoriesNow: e.target.value })}>
                   <option value="All" >All Category</option>
                   {this.state.categoryList.map((val) => {
@@ -164,7 +164,17 @@ class AdminReports extends React.Component {
             </div>
           </div>
         </linebutton>
-        {this.renderChart()}
+        <center>
+          <div className="mt-3 w-75">
+            {this.renderChart()}
+          </div>
+        </center>
+        <center>
+          <select className="block-btn" onClick={() => this.showChartData(this.state.categoriesNow)} onChange={(e) => this.setState({ sortList: e.target.value })} className="form-control ml-4" style={{ width: "100px" }} name="sortList">
+            <option value="asc">terkecil - terlaris</option>
+            <option value="desc">terlaris - terkecil</option>
+          </select>
+        </center>
       </>
     )
   }

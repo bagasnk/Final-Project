@@ -7,6 +7,8 @@ import { Link } from "react-router-dom";
 import Cookie from 'universal-cookie'
 import { Redirect } from "react-router-dom";
 import "./Auth.css"
+import swal from "sweetalert";
+
 
 
 
@@ -47,6 +49,7 @@ class AuthRegister extends React.Component {
     })
   }
 
+
   postDataHandler = () => {
     const { username, fullname, password, email, address } = this.state.registerForm
     const userData = {
@@ -56,12 +59,18 @@ class AuthRegister extends React.Component {
       email,
       address,
     };
-    this.props.onRegister(userData)
+
+    if(this.state.registerForm.password == this.state.registerForm.repassword){
+      this.props.onRegister(userData)
+    }else{
+      swal("Failed!", "Your Password and Re Password didnt match", "error");
+    }
     this.state.registerForm.username = ""
     this.state.registerForm.password = ""
     this.state.registerForm.fullname = ""
     this.state.registerForm.email = ""
     this.state.registerForm.address = ""
+    this.state.registerForm.repassword = ""
     this.setState({ errMsg: "" })
   }
 

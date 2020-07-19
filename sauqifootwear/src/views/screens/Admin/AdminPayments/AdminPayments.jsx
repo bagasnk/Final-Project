@@ -3,10 +3,10 @@ import ButtonUI from "../../../components/Button/Button"
 import Axios from 'axios'
 import swal from 'sweetalert';
 import "./AdminPayments.css"
-import { Table } from "reactstrap";
 import { Modal, ModalHeader, ModalBody } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStepBackward, faFastBackward, faStepForward, faFastForward, faTimes } from "@fortawesome/free-solid-svg-icons/";
+import { Card, Table, Image, ButtonGroup, Button, InputGroup, FormControl } from "react-bootstrap";
 
 
 const API_URL = `http://localhost:8080`;
@@ -20,6 +20,10 @@ class AdminPayments extends React.Component {
     activeProductsSuccess: [],
     activeProductsReject: [],
     activeProductsRejectP: [],
+    currentPage: 0,
+    itemsPerPage: 6,
+    totalPages: 0,
+    totalElements: 0,
     modalOpen: false,
     modalOpenCheck: false,
     status: "pending",
@@ -39,13 +43,48 @@ class AdminPayments extends React.Component {
     });
   };
 
-  getPaymentsList = (val) => {
-    Axios.get(`${API_URL}/transaction?status=${val}`)
+  // button untuk balik ke page pertama 
+  firstPage = () => {
+    let firstPage = 1;
+    if (this.state.currentPage > firstPage) {
+      this.getPaymentsList(this.state.status, firstPage)
+    }
+  }
+
+  // button untuk kembali ke page sebelumnya
+  prevPage = () => {
+    let prevPage = 1;
+    if (this.state.currentPage > prevPage) {
+      this.getPaymentsList(this.state.status, this.state.currentPage - prevPage)
+    }
+  }
+
+  // button untuk maju ke page selanjutnya
+  nextPage = () => {
+    if (this.state.currentPage < Math.ceil(this.state.totalElements / this.state.itemsPerPage)) {
+      this.getPaymentsList(this.state.status, this.state.currentPage + 1)
+    }
+  }
+
+  // button untuk maju ke page terakhir
+  lastPage = () => {
+    let condition = Math.ceil(this.state.totalElements / this.state.itemsPerPage)
+    if (this.state.currentPage < condition) {
+      this.getPaymentsList(this.state.status, condition)
+    }
+  }
+
+  getPaymentsList = (val, currentPage) => {
+    currentPage -= 1
+    Axios.get(`${API_URL}/transaction?status=${val}&page=${currentPage}&size=6`)
       .then((res) => {
         console.log(res.data)
         this.setState({
-          productList: res.data,
-          status: val
+          productList: res.data.content,
+          status: val,
+          totalPages: res.data.totalPages,
+          totalElements: res.data.totalElements,
+          currentPage: res.data.number + 1
         });
 
       })
@@ -75,7 +114,6 @@ class AdminPayments extends React.Component {
           .catch((err) => {
             console.log(err);
           });
-
       })
       .catch((err) => {
         console.log(err)
@@ -246,54 +284,105 @@ class AdminPayments extends React.Component {
           </tr>
           <>
             {val.transactionDetails.map((val, index) => {
-              return (
-                <tr
-                  className={`collapse-item 
+              if (val.products != null) {
+                return (
+                  <tr
+                    className={`collapse-item 
                   ${this.state.status == "pending" ?
-                      this.state.activeProducts.includes(idx) ? "active" : null
-                      : this.state.status == "success" ?
-                        this.state.activeProductsSuccess.includes(idx) ? "active" : null
-                        : this.state.status == "reject" ?
-                          this.state.activeProductsReject.includes(idx) ? "active" : null
-                          : this.state.activeProductsRejectP.includes(idx) ? "active" : null
-                    }`}
-                >
-                  <td colSpan={6}>
-                    <div className="row col-12">
-                      <div className="col-3 pt-2">
-                        <img src={val.products.image} alt="" style={{ height: "120px", border: "1px solid black" }} />
+                        this.state.activeProducts.includes(idx) ? "active" : null
+                        : this.state.status == "success" ?
+                          this.state.activeProductsSuccess.includes(idx) ? "active" : null
+                          : this.state.status == "reject" ?
+                            this.state.activeProductsReject.includes(idx) ? "active" : null
+                            : this.state.activeProductsRejectP.includes(idx) ? "active" : null
+                      }`}
+                  >
+                    <td colSpan={6}>
+                      <div className="row col-12">
+                        <div className="col-3 pt-2">
+                          <img src={val.products.image} alt="" style={{ height: "120px", border: "1px solid black" }} />
+                        </div>
+                        <div className="col-3 text-left">
+                          <h6>No</h6>
+                          <h6>Nama Product</h6>
+                          <h6>Price</h6>
+                          <h6>Quantity</h6>
+                          <h6>Total Price</h6>
+                        </div>
+                        <div className="col-4 text-left">
+                          <h6>: <span style={{ fontWeight: "normal" }}>{index + 1}</span></h6>
+                          <h6>: <span style={{ fontWeight: "normal" }}>{val.products.productName}</span></h6>
+                          <h6>: <span style={{ fontWeight: "normal" }}>
+                            {" "}
+                            {new Intl.NumberFormat("id-ID", {
+                              style: "currency",
+                              currency: "IDR",
+                            }).format(val.price)}
+                          </span></h6>
+                          <h6>: <span style={{ fontWeight: "normal" }}> {val.quantity}</span> </h6>
+                          <h6>: <span style={{ fontWeight: "normal" }}>
+                            {" "}
+                            {new Intl.NumberFormat("id-ID", {
+                              style: "currency",
+                              currency: "IDR",
+                            }).format(val.totalPriceProduct)}
+                          </span>
+                          </h6>
+                        </div>
                       </div>
-                      <div className="col-3 text-left">
-                        <h6>No</h6>
-                        <h6>Nama Product</h6>
-                        <h6>Price</h6>
-                        <h6>Quantity</h6>
-                        <h6>Total Price</h6>
+                    </td>
+                  </tr>
+                )
+              } else {
+                return (
+                  <tr
+                    className={`collapse-item 
+                  ${this.state.status == "pending" ?
+                        this.state.activeProducts.includes(idx) ? "active" : null
+                        : this.state.status == "success" ?
+                          this.state.activeProductsSuccess.includes(idx) ? "active" : null
+                          : this.state.status == "reject" ?
+                            this.state.activeProductsReject.includes(idx) ? "active" : null
+                            : this.state.activeProductsRejectP.includes(idx) ? "active" : null
+                      }`}
+                  >
+                    <td colSpan={6}>
+                      <div className="row col-12">
+                        <div className="col-3 pt-2">
+                          <img src={val.paket.imagePaket} alt="" style={{ height: "120px", border: "1px solid black" }} />
+                        </div>
+                        <div className="col-3 text-left">
+                          <h6>No</h6>
+                          <h6>Nama Paket</h6>
+                          <h6>Price</h6>
+                          <h6>Quantity</h6>
+                          <h6>Total Price</h6>
+                        </div>
+                        <div className="col-4 text-left">
+                          <h6>: <span style={{ fontWeight: "normal" }}>{index + 1}</span></h6>
+                          <h6>: <span style={{ fontWeight: "normal" }}>{val.paket.paketName}</span></h6>
+                          <h6>: <span style={{ fontWeight: "normal" }}>
+                            {" "}
+                            {new Intl.NumberFormat("id-ID", {
+                              style: "currency",
+                              currency: "IDR",
+                            }).format(val.paket.paketPrice)}
+                          </span></h6>
+                          <h6>: <span style={{ fontWeight: "normal" }}> {val.quantity}</span> </h6>
+                          <h6>: <span style={{ fontWeight: "normal" }}>
+                            {" "}
+                            {new Intl.NumberFormat("id-ID", {
+                              style: "currency",
+                              currency: "IDR",
+                            }).format(val.totalPriceProduct)}
+                          </span>
+                          </h6>
+                        </div>
                       </div>
-                      <div className="col-4 text-left">
-                        <h6>: <span style={{ fontWeight: "normal" }}>{index + 1}</span></h6>
-                        <h6>: <span style={{ fontWeight: "normal" }}>{val.products.productName}</span></h6>
-                        <h6>: <span style={{ fontWeight: "normal" }}>
-                          {" "}
-                          {new Intl.NumberFormat("id-ID", {
-                            style: "currency",
-                            currency: "IDR",
-                          }).format(val.price)}
-                        </span></h6>
-                        <h6>: <span style={{ fontWeight: "normal" }}> {val.quantity}</span> </h6>
-                        <h6>: <span style={{ fontWeight: "normal" }}>
-                          {" "}
-                          {new Intl.NumberFormat("id-ID", {
-                            style: "currency",
-                            currency: "IDR",
-                          }).format(val.totalPriceProduct)}
-                        </span>
-                        </h6>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              )
+                    </td>
+                  </tr>
+                )
+              }
             }
             )}
           </>
@@ -377,6 +466,23 @@ class AdminPayments extends React.Component {
           </div>
 
         </div >
+
+        <div className="text-center mb-4">
+          Showing Page {this.state.currentPage} of {this.state.totalPages}
+        </div>
+        <div className="row justify-content-center mt-3 pt-2">
+          <ButtonUI disabled={this.state.currentPage === 1 ? true : false}
+            onClick={this.firstPage}><FontAwesomeIcon icon={faFastBackward} />First</ButtonUI>
+          <ButtonUI disabled={this.state.currentPage === 1 ? true : false}
+            onClick={this.prevPage}><FontAwesomeIcon icon={faStepBackward} />Prev</ButtonUI>
+          <FormControl className={"page-num bg-light"} name="currentPage" value={this.state.currentPage}
+            onChange={this.changePage} />
+          <ButtonUI disabled={this.state.currentPage === this.state.totalPages ? true : false}
+            onClick={this.nextPage}><FontAwesomeIcon icon={faStepForward} />Next</ButtonUI>
+          <ButtonUI disabled={this.state.currentPage === this.state.totalPages ? true : false}
+            onClick={this.lastPage}><FontAwesomeIcon icon={faFastForward} />Last</ButtonUI>
+        </div>
+
 
         <Modal
           toggle={this.toggleModalCheck}

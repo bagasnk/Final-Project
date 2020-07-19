@@ -1,6 +1,8 @@
 import Axios from 'axios'
 import userTypes from '../types/user'
 import Cookie from "universal-cookie";
+import swal from "sweetalert";
+
 
 const API_URL = `http://localhost:8080`;
 
@@ -51,6 +53,7 @@ export const RegisterHandler = (userData) => {
       ...userData, role: "user"
     })
       .then((res) => {
+        swal("Success!", "Register Success", "success");
         dispatch({
           type: ON_REGISTER_SUCCESS,
           payload: res.data

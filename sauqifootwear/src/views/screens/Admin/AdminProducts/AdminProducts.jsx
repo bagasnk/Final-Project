@@ -18,17 +18,29 @@ const API_URL = `http://localhost:8080`;
 class AdminProducts extends React.Component {
   state = {
     productList: [],
+    paketList: [],
     categoryList: [],
     productListALL: [],
     productNow: "",
+    productNowPaket:"",
+    paketNow:"",
     categoriesNow: "",
-    productId:0,
+    productId: 0,
+    paketId: 0,
 
     createForm: {
       productName: "",
       price: null,
       image: "",
       description: "",
+      stockGudang: null,
+    },
+
+    createFormPaket: {
+      paketName: "",
+      paketPrice: null,
+      imagePaket: "",
+      reviewPaket: "",
       stockGudang: null,
     },
 
@@ -44,10 +56,22 @@ class AdminProducts extends React.Component {
       description: "",
       stockGudang: 0,
     },
+
+    editFormPaket: {
+      id: 0,
+      paketName: "",
+      paketPrice: 0,
+      imagePaket: "",
+      reviewPaket: "",
+      stockGudang: 0,
+    },
+
     categoriesList: "",
     selectImage: null,
     activeProducts: [],
+    activePaket:[],
     modalOpen: false,
+    modalOpenPaket:false,
     currentPage: 0,
     itemsPerPage: 5,
     totalPages: 0,
@@ -117,6 +141,7 @@ class AdminProducts extends React.Component {
         console.log(err);
       });
   };
+
 
   getProductListALL = () => {
     Axios.get(`${API_URL}/products`)
@@ -271,9 +296,40 @@ class AdminProducts extends React.Component {
             stockGudang: null,
           }
         });
-        
+
         this.getProductList(this.state.currentPage);
         this.getProductListALL();
+      })
+      .catch((err) => {
+        swal("Error!", "Your item could not be added to the list", "error");
+      });
+  };
+
+  createPaketHandler = () => {
+    let formData = new FormData();
+    if (this.state.selectImage) {
+      formData.append(
+        "file",
+        this.state.selectImage,
+        this.state.selectImage.name
+      );
+    }
+    formData.append("paketData", JSON.stringify(this.state.createFormPaket));
+    console.log(this.state.createFormPaket);
+    console.log(JSON.stringify(this.state.createFormPaket));
+
+    Axios.post(`${API_URL}/paket/addPaket`, formData)
+      .then((res) => {
+        swal("Success!", "Your item has been added to the list", "success");
+        this.setState({
+          createForm: {
+            paketName: "",
+            paketPrice: null,
+            reviewPaket: "",
+            stockGudang: null,
+          }
+        });
+        this.showPaket()
       })
       .catch((err) => {
         swal("Error!", "Your item could not be added to the list", "error");
@@ -295,6 +351,24 @@ class AdminProducts extends React.Component {
           })
       })
   }
+
+  addProductsToPaket = (val) => {
+    console.log(this.state.productNowPaket + " " + this.state.paketNow)
+    Axios.get(`${API_URL}/paket`)
+      .then((res) => {
+        Axios.post(`${API_URL}/paketDetails/addPaketDetails/${this.state.paketNow}/${this.state.productNowPaket}`,{})
+          .then((res) => {
+            swal("Success!", "Your Products has been added to Paket", "success");
+            console.log(res.data)
+            this.showPaket()
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+      })
+  }
+
+
 
   createCategoryHandler = () => {
     Axios.post(`${API_URL}/categories`, this.state.createCategoriesForm)
@@ -319,8 +393,110 @@ class AdminProducts extends React.Component {
       })
   }
 
+  showPaket = () => {
+    Axios.get(`${API_URL}/paket`)
+      .then((res) => {
+        this.setState({ paketList: res.data });
+      })
+  }
+
+  renderPaketList = () => {
+    return this.state.paketList.map((val, idx) => {
+      const { id,paketName,paketDetails,paketPrice,reviewPaket,stock,imagePaket } = val;
+      return (
+        <>
+          <tr
+            onClick={() => {
+              if (this.state.activePaket.includes(idx)) {
+                this.setState({
+                  activePaket: [
+                    ...this.state.activePaket.filter((item) => item !== idx),
+                  ],
+                });
+              } else {
+                this.setState({
+                  activePaket: [...this.state.activePaket, idx],
+                });
+              }
+            }}>
+            <td> {id} </td>
+            <td> {paketName} </td>
+            <td> {stock} </td>
+            <td>
+              {" "}
+              {new Intl.NumberFormat("id-ID", {
+                style: "currency",
+                currency: "IDR",
+              }).format(paketPrice)}{" "}
+            </td>
+          </tr>
+          <tr
+            className={`collapse-item ${
+              this.state.activePaket.includes(idx) ? "active" : null
+              }`}
+          >
+            <td className="" colSpan={2}>
+              <div className="d-flex justify-content-around align-items-center">
+                <div className="d-flex">
+                  <img src={imagePaket} alt="" />
+                  <div className="d-flex flex-column ml-4 justify-content-center">
+                    <h5>{paketName}</h5>
+                    <h6 className="mt-2">
+                      Product:
+                    {paketDetails.map((value, idx) => {
+
+                      return (
+                        <div className="row">
+                          <div className="col-11">
+                            <span className="ml-2" style={{ fontWeight: "normal" }}> {value.products.productName} </span>
+                          </div>
+                          <div className="1">
+                            <FontAwesomeIcon icon={faTimes} onClick={(_) => this.deleteProductPaketBtnHandler(id, value.id)} />
+                          </div>
+                        </div>
+                      )
+                    }
+                    )}
+                    </h6>
+                    <h6>
+                      Price:
+                      <span style={{ fontWeight: "normal" }}>
+                        {" "}
+                        {new Intl.NumberFormat("id-ID", {
+                          style: "currency",
+                          currency: "IDR",
+                        }).format(paketPrice)}
+                      </span>
+                    </h6>
+                    <h6>
+                      Description:
+                     <span style={{ fontWeight: "normal" }}> {reviewPaket}</span>
+                    </h6>
+                  </div>
+                </div>
+                <div className="d-flex flex-column align-items-center">
+                  <ButtonUI
+                    onClick={(_) => this.editBtnHandlerPaket(idx)}
+                    type="contained"
+                  >
+                    Edit
+                  </ButtonUI>
+                  <ButtonUI className="mt-3" onClick={(_) => this.deleteBtnHandler(id)}
+                    type="textual">
+                    Delete
+                  </ButtonUI>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </>
+      );
+    });
+  };
+
   componentDidUpdate() {
     this.showCategory();
+    // this.showPaket();
   }
 
   editBtnHandler = (idx) => {
@@ -329,9 +505,19 @@ class AdminProducts extends React.Component {
         ...this.state.productList[idx],
       },
       modalOpen: true,
-      productId : idx
+      productId: idx
     });
   };
+
+  editBtnHandlerPaket = (idx) => {
+    this.setState({
+      editFormPaket:{
+        ...this.state.paketList[idx],
+      },
+      modalOpenPaket:true,
+      paketId:idx
+    })
+  }
 
   deleteBtnHandler = (id) => {
     Axios.delete(`${API_URL}/products/${id}`)
@@ -355,6 +541,17 @@ class AdminProducts extends React.Component {
       })
   }
 
+  deleteProductPaketBtnHandler = (paketId, productId) => {
+    Axios.delete(`${API_URL}/paket/deleteProductPaket/${paketId}/${productId}`)
+      .then((res) => {
+        swal("Success!", "Your item has been deleted", "success");
+        this.showPaket();
+      })
+      .then((err) => {
+        console.log(err)
+      })
+  }
+
   editProductHandler = () => {
     let formData = new FormData();
     if (this.state.selectImage) {
@@ -367,11 +564,11 @@ class AdminProducts extends React.Component {
 
     formData.append("productData", JSON.stringify(this.state.editForm));
     Axios.put(
-      `${API_URL}/products/edit/${this.state.editForm.id}`, formData , {
-        params:{
-          stockGudangFE : this.state.productList[this.state.productId].stockGudang
-        }
-      })
+      `${API_URL}/products/edit/${this.state.editForm.id}`, formData, {
+      params: {
+        stockGudangFE: this.state.productList[this.state.productId].stockGudang
+      }
+    })
       .then((res) => {
         swal("Success!", "Your item has been edited", "success");
         this.setState({ modalOpen: false });
@@ -382,14 +579,44 @@ class AdminProducts extends React.Component {
         console.log(err);
       });
   };
+
+  editPaketHandler = () => {
+    let formData = new FormData();
+    if (this.state.selectImage) {
+      formData.append(
+        "file",
+        this.state.selectImage,
+        this.state.selectImage.name
+      );
+    }
+    formData.append("paketData", JSON.stringify(this.state.editFormPaket));
+    Axios.put(`${API_URL}/paket/edit/${this.state.editFormPaket.id}`, formData)
+      .then((res) => {
+        swal("Success!", "Your item has been edited", "success");
+        this.setState({ modalOpenPaket: false });
+        this.showPaket();
+        console.log(res.data)
+      })
+      .catch((err) => {
+        swal("Error!", "Your item could not be edited", "error");
+        console.log(err);
+      });
+  };
+
+
   toggleModal = () => {
     this.setState({ modalOpen: !this.state.modalOpen });
+  };
+
+  toggleModalPaket = () => {
+    this.setState({ modalOpenPaket: !this.state.modalOpenPaket });
   };
 
   componentDidMount() {
     this.getProductListALL();
     this.getProductList(this.state.currentPage);
     this.showCategory();
+    this.showPaket();
   }
 
   render() {
@@ -434,7 +661,20 @@ class AdminProducts extends React.Component {
             <ButtonUI disabled={this.state.currentPage === this.state.totalPages ? true : false}
               onClick={this.lastPage}><FontAwesomeIcon icon={faFastForward} />Last</ButtonUI>
           </div>
-
+          <caption className="p-3">
+            <h2>Paket</h2>
+          </caption>
+          <table className="dashboard-table">
+            <thead>
+              <tr>
+                <th className="col-1">ID</th>
+                <th className="col-5">Name</th>
+                <th className="col-3">Stock</th>
+                <th className="col-3">Price</th>
+              </tr>
+            </thead>
+            <tbody>{this.renderPaketList()}</tbody>
+          </table>
         </div>
         <div className="dashboard-form-container p-4">
           <caption className="mb-4 mt-2">
@@ -484,6 +724,49 @@ class AdminProducts extends React.Component {
             <div className="col-3 mt-3">
               <ButtonUI onClick={this.createProductHandler} type="contained">
                 Create Product
+                            </ButtonUI>
+            </div>
+          </div>
+
+          <caption className="mb-4 mt-2">
+            <h2>Add Paket</h2>
+          </caption>
+          <div className="row">
+            <div className="col-8">
+              <TextField
+                value={this.state.createFormPaket.paketName}
+                placeholder="Paket Name"
+                onChange={(e) => this.inputHandler(e, "paketName", "createFormPaket")}
+              />
+            </div>
+            <div className="col-4">
+              <TextField
+                value={this.state.createFormPaket.paketPrice}
+                placeholder="Price"
+                onChange={(e) => this.inputHandler(e, "paketPrice", "createFormPaket")}
+              />
+            </div>
+            <div className="col-12 mt-3">
+              <textarea
+                value={this.state.createFormPaket.reviewPaket}
+                onChange={(e) => this.inputHandler(e, "reviewPaket", "createFormPaket")}
+                style={{ resize: "none" }}
+                placeholder="Description"
+                className="custom-text-input"
+              ></textarea>
+            </div>
+            <div className="col-6 mt-2">
+              <Input className="mt-3 ml-4"
+                type="file"
+                name="file"
+                onChange={(e) => {
+                  this.fileChangeHandler(e, "selectImage");
+                }}
+              />
+            </div>
+            <div className="col-3 mt-3">
+              <ButtonUI onClick={this.createPaketHandler} type="contained">
+                Create Paket
                             </ButtonUI>
             </div>
           </div>
@@ -548,6 +831,49 @@ class AdminProducts extends React.Component {
               </ButtonUI>
             </div>
           </div>
+
+          <caption className="mb-4 mt-2">
+            <h4>Add Products to Paket</h4>
+          </caption>
+          <div className="row">
+            <div className="col-4">
+              <select
+                value={this.state.paketNow}
+                className="custom-text-input h-100 pl-3"
+                onChange={(e) => this.inputNow(e.target.value, "paketNow")}
+              >
+                <option value="" disabled>Select Paket</option>
+                {this.state.paketList.map((val) => {
+                  return (
+                    <option value={val.id}>{val.paketName}</option>
+                  )
+                })}
+              </select>
+            </div>
+            
+            <div classname="col-4">
+              <select
+                value={this.state.productNowPaket}
+                className="custom-text-input h-100 pl-3"
+                onChange={(e) => this.inputNow(e.target.value, "productNowPaket")}
+              >
+                <option value="" disabled>Select Product</option>
+
+                {this.state.productListALL.map((val) => {
+                  return (
+                    <option value={val.id}>{val.productName}</option>
+                  )
+                })}
+              </select>
+            </div>
+            <div className="col-3 ">
+              <ButtonUI onClick={this.addProductsToPaket} type="contained">
+                Add Products to Paket
+              </ButtonUI>
+            </div>
+          </div>
+
+
         </div>
         <Modal
           toggle={this.toggleModal}
@@ -632,6 +958,83 @@ class AdminProducts extends React.Component {
             </div>
           </ModalBody>
         </Modal>
+
+        <Modal
+          toggle={this.toggleModalPaket}
+          isOpen={this.state.modalOpenPaket}
+          className="edit-modal"
+        >
+          <ModalHeader toggle={this.toggleModalPaket}>
+            <caption>
+              <h3>Edit Paket</h3>
+            </caption>
+          </ModalHeader>
+          <ModalBody>
+            <div className="row">
+              <div className="col-12">
+                Nama Paket :
+                <TextField
+                  value={this.state.editFormPaket.paketName}
+                  placeholder="Paket Name"
+                  onChange={(e) =>
+                    this.inputHandler(e, "paketName", "editFormPaket")
+                  }
+                />
+              </div>
+              <div className="col-6">
+                Price :
+                <TextField
+                  value={this.state.editFormPaket.paketPrice}
+                  placeholder="Price"
+                  onChange={(e) => this.inputHandler(e, "paketPrice", "editFormPaket")}
+                />
+              </div>
+              <div className="col-12 mt-3">
+                Description :
+                <textarea
+                  value={this.state.editFormPaket.reviewPaket}
+                  onChange={(e) => this.inputHandler(e, "reviewPaket", "editFormPaket")}
+                  style={{ resize: "none" }}
+                  placeholder="Description"
+                  className="custom-text-input"
+                ></textarea>
+              </div>
+              <div className="col-6 mt-3">
+                Image :
+                <Input className="mt-3 ml-4"
+                  type="file"
+                  name="file"
+                  onChange={(e) => {
+                    this.fileChangeHandler(e, "selectImage");
+                  }}
+                />
+              </div>
+              <div className="col-12 text-center my-3">
+                <img src={this.state.editFormPaket.imagePaket} alt="" />
+              </div>
+              <div className="col-5 mt-3 offset-1">
+                <ButtonUI
+                  className="w-100"
+                  onClick={this.toggleModalPaket}
+                  type="outlined"
+                >
+                  Cancel
+                </ButtonUI>
+              </div>
+              <div className="col-5 mt-3">
+                <ButtonUI
+                  className="w-100"
+                  onClick={this.editPaketHandler}
+                  type="contained"
+                >
+                  Save
+                </ButtonUI>
+              </div>
+            </div>
+          </ModalBody>
+        </Modal>
+
+
       </div>
     );
   }

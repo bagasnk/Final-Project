@@ -25,7 +25,7 @@ class UserCart extends React.Component {
     datePayments: new Date(),
     jasaPengiriman: "0",
     datePayments: new Date(),
-    
+
   }
 
   inputHandler = (e, field) => {
@@ -49,7 +49,7 @@ class UserCart extends React.Component {
     }
   }
 
-  deleteItemCart = (id,productId) => {
+  deleteItemCart = (id, productId) => {
     Axios.delete(`${API_URL}/carts/${id}/${productId}`)
       .then((res) => {
         console.log(res);
@@ -77,15 +77,20 @@ class UserCart extends React.Component {
 
   getItemCart = () => {
     let totalPriceItems = 0;
+    let totalPricePaket = 0;
     Axios.get(`${API_URL}/carts/user/${this.props.user.id}`)
       .then((res) => {
         console.log(res.data);
         res.data.map((val) => {
-          totalPriceItems += val.quantity * val.product.price
+          if (val.product != null) {
+            totalPriceItems += val.quantity * val.product.price
+          } else {
+            totalPricePaket += val.quantity * val.paket.paketPrice
+          }
         })
         this.setState({
           itemCart: res.data,
-          totalPrice: totalPriceItems
+          totalPrice: totalPriceItems + totalPricePaket
         });
       })
       .catch((err) => {
@@ -96,81 +101,137 @@ class UserCart extends React.Component {
   renderCarts = () => {
     const { itemCart } = this.state;
     return itemCart.map((val, idx) => {
-      return (
-        <tr>
-          <td>{idx + 1}</td>
-          <td>{val.product.productName}</td>
-          <td>{
-            new Intl.NumberFormat("id-ID",
-              { style: "currency", currency: "IDR" }).format(val.product.price)
-          }
-          </td>
-          <td>{val.quantity}</td>
-          <td>
-            {val.product.categories.map((value, idx) => {
-              if (idx == 0) {
-                return (
-                  <span style={{ fontWeight: "normal" }}> {value.nama} </span>
-                )
-              } else {
-                return (
-                  <span style={{ fontWeight: "normal" }}>, {value.nama} </span>
-                )
-              }
-            })}
-          </td>
-          <td><img src={val.product.image} alt="" style={{ height: "50px" }} /></td>
-          <td>
-            <input
-              type="checkbox"
-              onChange={(e) => this.checkboxHandler(e, idx)}
-              className="form-control" />
-          </td>
-          <th scope="row">
-            <div className="d-flex justify-content-center">
-              <ButtonUI
-                type="contained"
-                onClick={() => this.deleteItemCart(val.id,val.product.id)}>
-                Delete
+      if (val.product != null) {
+        return (
+          <tr>
+            <td>{idx + 1}</td>
+            <td>{val.product.productName}</td>
+            <td>{
+              new Intl.NumberFormat("id-ID",
+                { style: "currency", currency: "IDR" }).format(val.product.price)
+            }
+            </td>
+            <td>{val.quantity}</td>
+            <td>
+              {val.product.categories.map((value, idx) => {
+                if (idx == 0) {
+                  return (
+                    <span style={{ fontWeight: "normal" }}> {value.nama} </span>
+                  )
+                } else {
+                  return (
+                    <span style={{ fontWeight: "normal" }}>, {value.nama} </span>
+                  )
+                }
+              })}
+            </td>
+            <td><img src={val.product.image} alt="" style={{ height: "50px" }} /></td>
+            <th scope="row">
+              <div className="d-flex justify-content-center">
+                <ButtonUI
+                  type="contained"
+                  onClick={() => this.deleteItemCart(val.id, val.product.id)}>
+                  Delete
                     </ButtonUI>
-            </div>
-          </th>
-        </tr>
-      )
+              </div>
+            </th>
+          </tr>
+        )
+      } else {
+        return (
+          <tr>
+            <td>{idx + 1}</td>
+            <td className="col-3">{val.paket.paketName}
+            <div>
+              {
+                val.paket.paketDetails.map((val,idx) => {
+                  if(idx == 0){
+                    return (
+                        <span style={{ fontWeight: "normal" }}>{val.products.productName} </span>
+                    )
+                  }else{
+                    return (
+                        <span style={{ fontWeight: "normal" }}>, {val.products.productName} </span>
+                    )
+                  }
+                })
+              }
+            </div></td>
+            <td>{
+              new Intl.NumberFormat("id-ID",
+                { style: "currency", currency: "IDR" }).format(val.paket.paketPrice)
+            }
+            </td>
+            <td>{val.quantity}</td>
+            <td>PAKET</td>
+            <td><img src={val.imagePaket} alt="" style={{ height: "50px" }} /></td>
+            <th scope="row">
+              <div className="d-flex justify-content-center">
+                <ButtonUI
+                  type="contained"
+                  onClick={() => this.deleteItemCart(val.id, val.paket.id)}>
+                  Delete
+                    </ButtonUI>
+              </div>
+            </th>
+          </tr>
+        )
+      }
     })
   }
 
   renderCheckout = () => {
     let totalPriceItems = 0
+    let totalPricePaket = 0
     const { itemCart } = this.state;
     return itemCart.map((val, idx) => {
-      totalPriceItems = (val.quantity * val.product.price)
-      return (
-        <>
-          <tr>
-            <td>{idx + 1}</td>
-            <td>{val.product.productName}</td>
-            <td>{val.quantity}</td>
-            <td> {val.product.categories.map((value, idx) => {
-              if (idx == 0) {
-                return (
-                  <span style={{ fontWeight: "normal" }}> {value.nama} </span>
-                )
-              } else {
-                return (
-                  <span style={{ fontWeight: "normal" }}>, {value.nama} </span>
-                )
+      if (val.product != null) {
+        totalPriceItems = (val.quantity * val.product.price)
+        return (
+          <>
+            <tr>
+              <td>{idx + 1}</td>
+              <td>{val.product.productName}</td>
+              <td>{val.quantity}</td>
+              <td> {val.product.categories.map((value, idx) => {
+                if (idx == 0) {
+                  return (
+                    <span style={{ fontWeight: "normal" }}> {value.nama} </span>
+                  )
+                } else {
+                  return (
+                    <span style={{ fontWeight: "normal" }}>, {value.nama} </span>
+                  )
+                }
+              })}</td>
+              <td>{
+                new Intl.NumberFormat("id-ID",
+                  { style: "currency", currency: "IDR" }).format(totalPriceItems)
               }
-            })}</td>
-            <td>{
-              new Intl.NumberFormat("id-ID",
-                { style: "currency", currency: "IDR" }).format(totalPriceItems)
-            }
-            </td>
-          </tr>
+              </td>
+            </tr>
 
-        </>
-      )
+          </>
+        )
+      } else {
+        totalPricePaket = (val.quantity * val.paket.paketPrice)
+        return (
+          <>
+            <tr>
+              <td>{idx + 1}</td>
+              <td>{val.paket.paketName}</td>
+              <td>{val.quantity}</td>
+              <td>Paket</td>
+              <td>{
+                new Intl.NumberFormat("id-ID",
+                  { style: "currency", currency: "IDR" }).format(totalPricePaket)
+              }
+              </td>
+            </tr>
+
+          </>
+        )
+      }
     })
   }
 
@@ -207,6 +268,7 @@ class UserCart extends React.Component {
         })
           .then((res) => {
             this.state.itemCart.map(val => {
+              if(val.product != null){
               Axios.post(`${API_URL}/transactionDetails/addTransactionDetails/${res.data.id}/${val.product.id}`, {
                 price: val.product.price,
                 totalPriceProduct: val.product.price * val.quantity,
@@ -218,6 +280,19 @@ class UserCart extends React.Component {
                 .catch((err) => {
                   console.log(err);
                 })
+              }else{
+                Axios.post(`${API_URL}/transactionDetails/addTransactionDetailsPaket/${res.data.id}/${val.paket.id}`, {
+                  price: val.paket.paketPrice,
+                  totalPriceProduct: val.paket.paketPrice * val.quantity,
+                  quantity: val.quantity
+                })
+                  .then((res) => {
+                    console.log(res);
+                  })
+                  .catch((err) => {
+                    console.log(err);
+                  })
+              }
             })
           })
           .catch((err) => {

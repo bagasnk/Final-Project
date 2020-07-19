@@ -6,24 +6,24 @@ import Cookie from 'universal-cookie'
 import { Redirect } from "react-router-dom";
 import Axios from 'axios'
 import swal from 'sweetalert';
-import "./ProductDetails.css"
+import "./PaketDetails.css"
 import { qtyCartHandler } from "../../../redux/actions";
 
 const API_URL = `http://localhost:8080`;
 
-class ProductDetails extends React.Component {
+class PaketDetails extends React.Component {
   state = {
-    productData: {
-      image: "",
-      productName: "",
-      price: 0,
-      description: "",
+    paketData: {
+      imagePaket: "",
+      paketName: "",
+      paketPrice: 0,
+      ProductSatuan: 0,
+      reviewPaket: "",
       id: 0,
-      categories: [],
       cartDataUser: [],
+      paketDetails: [],
     },
   }
-
 
   addToCartHandler = () => {
     if (this.props.user.id < 1) {
@@ -35,23 +35,24 @@ class ProductDetails extends React.Component {
     } else {
       Axios.get(`${API_URL}/carts/user/${this.props.user.id}`)
         .then((res) => {
+          console.log(res.data)
           this.setState({ cartDataUser: res.data });
           let checkItems = this.state.cartDataUser.findIndex((val) => {
-            if(val.product != null){
+            if(val.paket != null){
               return (
-                val.product.id == this.state.productData.id
+                val.paket.id == this.state.paketData.id 
               )
             }
           })
           if (checkItems == -1) {
-            Axios.post(`${API_URL}/carts/addCart/${this.props.user.id}/${this.state.productData.id}`,
+            Axios.post(`${API_URL}/carts/addCartPaket/${this.props.user.id}/${this.state.paketData.id}`,
               {
                 quantity: 1,
               }
             )
               .then((res) => {
                 console.log(res.data);
-                this.getProductDataHandler()
+                this.getPaketDataHandler()
                 swal(
                   "Add to cart",
                   "New item has been added to your cart",
@@ -70,10 +71,10 @@ class ProductDetails extends React.Component {
               "Quantity item has been added to your cart",
               "success"
             );
-            Axios.put(`${API_URL}/carts/updateQty/${this.state.cartDataUser[checkItems].id}/${this.state.productData.id}`)
+            Axios.put(`${API_URL}/carts/updateQtyPaket/${this.state.cartDataUser[checkItems].id}/${this.state.paketData.id}`)
               .then((resSameData) => {
                 console.log(resSameData)
-                this.getProductDataHandler()
+                this.getPaketDataHandler()
               })
               .catch((err) => {
                 console.log(err);
@@ -83,14 +84,12 @@ class ProductDetails extends React.Component {
     }
   };
 
-  getProductDataHandler = () => {
-    Axios.get(`${API_URL}/products/${this.props.match.params.productId}`)
+  getPaketDataHandler = () => {
+    Axios.get(`${API_URL}/paket/${this.props.match.params.paketId}`)
       .then((res) => {
-        this.setState({ productData: res.data })
-        console.log(this.state.productData)
+        this.setState({ paketData: res.data})
+        console.log(this.state.paketData)
         this.props.onQtyCartHandler(this.props.user.id);
-
-        // this.setState({ productData: { ...this.state.productData, ...res.data }})
       })
       .catch((err) => {
         console.log(err)
@@ -98,60 +97,74 @@ class ProductDetails extends React.Component {
   }
 
   componentDidMount() {
-    this.getProductDataHandler()
+    this.getPaketDataHandler()
   }
 
   render() {
-    const { productName, image, price, desc, categories, stock, description } = this.state.productData
+    const { paketName, imagePaket, paketPrice, reviewPaket, stock, paketDetails } = this.state.paketData
+    let hargaSatuan = 0
     return (
       <div className="container">
         <div className="row mt-4 pt-4">
           <div className="col-6 text-center">
             <img
               style={{ width: "100%", objectFit: "contain", height: "500px" }}
-              src={this.state.productData.image}
+              src={imagePaket}
               alt=""
             />
           </div>
           <div className="col-6 d-flex flex-column justify-content-center">
-            <h3>{productName}</h3>
-            <span>Tersedia {stock} Pcs</span>
-            <div className="d-flex flex-row">
+            <h3>{paketName}</h3>
+            {/* <span>Tersedia {stock} Pcs</span> */}
+            <span>Isi Paket terdiri dari :</span>
+            <div>
               {
-                categories.map((val, idx) => {
-                  if (idx == 0) {
-                    return (
-                      <span style={{ fontWeight: "normal" }}> {val.nama} </span>
-                    )
-                  } else {
-                    return (
-                      <span style={{ fontWeight: "normal" }}>, {val.nama} </span>
-                    )
-                  }
+                paketDetails.map((val, idx) => {
+                  {hargaSatuan += val.products.price}
+                  return (
+                    <>
+                      <div className="row">
+                        <div className="col-6">
+                          <span style={{ fontWeight: "normal" }}> {idx+1}.   {val.products.productName} </span>
+                        </div>
+                        <div className="col-6">
+                          <span>
+                            {
+                              new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(val.products.price)
+                            }
+                          </span>
+                        </div>
+                      </div>
+                    </>
+                  )
                 })
               }
             </div>
+            <h4 className="pt-3">
+              Dengan Harga Khusus Paket 
+            </h4>
+            <div className="row">
+            <strike>
+
             <h4>
               {
-                new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(price)
+                new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(hargaSatuan)
               }
             </h4>
-            <p className="mt-4">{description}</p>
-            {this.props.user.role === 'user' ? (
-            <div className="d-flex mt-4">
+            </strike>
+            <h6>
               {
-                this.state.productData.stock == 0 ? (
-                  <span>MAAF STOCK HABIS</span>
-                 ) : (
-
-                  <ButtonUI onClick={this.addToCartHandler}>Add to Cart</ButtonUI>
-                 )
+                new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(paketPrice)
               }
+            </h6>
+            </div>
+            <p className="mt-4">{reviewPaket}</p>
+            <div className="d-flex mt-4">
+              <ButtonUI onClick={this.addToCartHandler}>Add to Cart</ButtonUI>
 
               <ButtonUI onClick={this.addToWishlistHandler} className="ml-4" type="outlined">Add to WishList</ButtonUI>
 
             </div>
-            ) : null }
           </div>
         </div>
       </div>
@@ -170,4 +183,4 @@ const mapDispatchToProps = {
   onQtyCartHandler: qtyCartHandler,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ProductDetails);
+export default connect(mapStateToProps, mapDispatchToProps)(PaketDetails);

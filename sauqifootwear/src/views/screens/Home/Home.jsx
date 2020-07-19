@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStepBackward, faFastBackward, faStepForward, faFastForward } from "@fortawesome/free-solid-svg-icons/";
 import "./Home.css";
 import ProductCard from "../../components/Cards/ProductCard";
+import PaketCard from "../../components/Cards/PaketCard";
 import TextField from "../../components/TextField/TextField";
 import ButtonUI from "../../components/Button/Button"
 import { Card, Table, Image, ButtonGroup, Button, InputGroup, FormControl } from "react-bootstrap";
@@ -46,10 +47,12 @@ class Home extends React.Component {
     bestSellerData: [],
     bestSellerDataNew: [],
     bestSellerDataAll: [],
+    bestSellerPaketDataNew: [],
     categoryList: [],
     kondisiFilter: 0,
     categoriesNow: "All",
     productNameNow: "",
+    paketNameNow: "",
     maxPriceNow: 99999999,
     minPriceNow: 0,
     sortList: "asc",
@@ -136,7 +139,7 @@ class Home extends React.Component {
     if (this.state.activePage == "product") {
       this.getBestSellerDataByFilterSort(this.state.categoriesNow, targetPage);
     } else {
-      this.getBestSellerPaketByFilterSort(this.state.categoriesNow, targetPage);
+      this.getBestSellerPaketByFilterSort(targetPage);
     }
     this.setState({
       [event.target.name]: targetPage
@@ -153,7 +156,7 @@ class Home extends React.Component {
       }
     } else {
       if (this.state.currentPagePaket > firstPage) {
-        this.getBestSellerPaketByFilterSort(this.state.categoriesNow, firstPage);
+        this.getBestSellerPaketByFilterSort(firstPage);
       }
     }
   }
@@ -167,7 +170,7 @@ class Home extends React.Component {
       }
     } else {
       if (this.state.currentPagePaket > prevPage) {
-        this.getBestSellerPaketByFilterSort(this.state.categoriesNow, this.state.currentPagePaket - prevPage);
+        this.getBestSellerPaketByFilterSort(this.state.currentPagePaket - prevPage);
       }
     }
   }
@@ -180,7 +183,7 @@ class Home extends React.Component {
       }
     } else {
       if (this.state.currentPagePaket < Math.ceil(this.state.totalElements / this.state.itemsPerPage)) {
-        this.getBestSellerPaketByFilterSort(this.state.categoriesNow, this.state.currentPagePaket + 1)
+        this.getBestSellerPaketByFilterSort(this.state.currentPagePaket + 1)
       }
     }
   }
@@ -195,15 +198,29 @@ class Home extends React.Component {
       }
     } else {
       if (this.state.currentPagePaket < condition) {
-        this.getBestSellerPaketByFilterSort(this.state.categoriesNow, conditionPaket)
+        this.getBestSellerPaketByFilterSort(conditionPaket)
       }
     }
   }
 
 
   // get data paket + filter dan sort
-  getBestSellerPaketByFilterSort = () => {
-
+  getBestSellerPaketByFilterSort = (currentPage) => {
+    console.log("MASUK")
+    currentPage -= 1
+    Axios.get(`${API_URL}/paket/${this.state.minPriceNow}/${this.state.maxPriceNow}/${this.state.orderBy}/${this.state.sortList}/?paketName=${this.state.paketNameNow}&page=${currentPage}&size=6`)
+      .then((res) => {
+        this.setState({
+          bestSellerPaketDataNew: res.data.content,
+          totalPages: res.data.totalPages,
+          totalElements: res.data.totalElements,
+          currentPage: res.data.number + 1
+        });
+        console.log(res.data)
+      })
+      .catch((err) => {
+        console.log(err)
+      })
   }
 
   // get data products + filter dan sort
@@ -250,7 +267,7 @@ class Home extends React.Component {
 
   // data yang akan keluar dan diproses sekali saat pertama layar dijalankan
   componentDidMount() {
-    
+    this.getBestSellerPaketByFilterSort(this.state.currentPage)
     this.getBestSellerDataByFilterSort(this.state.categoriesNow, this.state.currentPage)
     this.showCategory();
   }
@@ -262,22 +279,22 @@ class Home extends React.Component {
       return (
         <>
           {this.renderProducts()}
-            <InputGroup size="sm">
-              <InputGroup.Prepend>
-                <ButtonUI disabled={currentPage === 1 ? true : false}
-                  onClick={this.firstPage}><FontAwesomeIcon icon={faFastBackward} />First</ButtonUI>
-                <ButtonUI disabled={currentPage === 1 ? true : false}
-                  onClick={this.prevPage}><FontAwesomeIcon icon={faStepBackward} />Prev</ButtonUI>
-              </InputGroup.Prepend>
-              <FormControl style={{alignSelf:"center"}} className={"page-num bg-light"} name="currentPage" value={currentPage}
-                onChange={this.changePage} />
-              <InputGroup.Append>
-                <ButtonUI disabled={currentPage === totalPages ? true : false}
-                  onClick={this.nextPage}><FontAwesomeIcon icon={faStepForward} />Next</ButtonUI>
-                <ButtonUI disabled={currentPage === totalPages ? true : false}
-                  onClick={this.lastPage}><FontAwesomeIcon icon={faFastForward} />Last</ButtonUI>
-              </InputGroup.Append>
-            </InputGroup>
+          <InputGroup size="sm">
+            <InputGroup.Prepend>
+              <ButtonUI disabled={currentPage === 1 ? true : false}
+                onClick={this.firstPage}><FontAwesomeIcon icon={faFastBackward} />First</ButtonUI>
+              <ButtonUI disabled={currentPage === 1 ? true : false}
+                onClick={this.prevPage}><FontAwesomeIcon icon={faStepBackward} />Prev</ButtonUI>
+            </InputGroup.Prepend>
+            <FormControl style={{ alignSelf: "center" }} className={"page-num bg-light"} name="currentPage" value={currentPage}
+              onChange={this.changePage} />
+            <InputGroup.Append>
+              <ButtonUI disabled={currentPage === totalPages ? true : false}
+                onClick={this.nextPage}><FontAwesomeIcon icon={faStepForward} />Next</ButtonUI>
+              <ButtonUI disabled={currentPage === totalPages ? true : false}
+                onClick={this.lastPage}><FontAwesomeIcon icon={faFastForward} />Last</ButtonUI>
+            </InputGroup.Append>
+          </InputGroup>
 
           <div style={{ "float": "left" }}>
             Showing Page {currentPage} of {totalPages}
@@ -300,7 +317,9 @@ class Home extends React.Component {
 
   // Menampilkan ProductCart Paket
   renderPaket = () => {
-
+    return this.state.bestSellerPaketDataNew.map(val => {
+      return <PaketCard data={val} className='m-3' />
+    })
   }
 
   render() {

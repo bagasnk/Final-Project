@@ -11,6 +11,7 @@ import Home from "./views/screens/Home/Home";
 import AuthLogin from "./views/screens/Auth/AuthLogin";
 import AuthRegister from "./views/screens/Auth/AuthRegister";
 import ProductDetails from "./views/screens/ProductDetails/ProductDetails";
+import PaketDetails from "./views/screens/PaketDetails/PaketDetails"
 import UserProfile from './views/screens/User/UserProfile/UserProfile';
 import UserReset from "./views/screens/User/UserReset/UserReset";
 import UserResetPassword from "./views/screens/User/UserReset/UserResetPassword"
@@ -68,6 +69,7 @@ class App extends React.Component {
           <Route exact path="/authregister" component={AuthRegister} />
           <Route exact path="/user/profile" component={UserProfile} />
           <Route exact path="/products/:productId" component={ProductDetails} />
+          <Route exact path="/paket/:paketId" component={PaketDetails} />
           <Route exact path="/resetPassword" component={UserReset} />
           <Route exact path="/resetPassword/:user_id/:userVerif" component={UserResetPassword}/>
           <Route exact path="/userCart" component={UserCart}/>

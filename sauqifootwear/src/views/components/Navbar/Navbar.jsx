@@ -71,6 +71,7 @@ class Navbar extends React.Component {
 
               {this.props.user.id ? (
                 <>
+                {this.props.user.role === 'user' ? (
                   <Link
                     className="d-flex flex-row pt-2"
                     to="/userCart"
@@ -87,6 +88,7 @@ class Navbar extends React.Component {
                       </small>
                     </CircleBg>
                   </Link>
+                ) : null }
 
 
                   <Dropdown toggle={this.toggleDropdown} isOpen={this.state.dropdownOpen}>
