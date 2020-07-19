@@ -140,7 +140,7 @@ class ProductDetails extends React.Component {
             {this.props.user.role === 'user' ? (
             <div className="d-flex mt-4">
               {
-                this.state.productData.stock == 0 ? (
+                this.state.productData.stock <= 0 ? (
                   <span>MAAF STOCK HABIS</span>
                  ) : (
 
