@@ -56,13 +56,13 @@ class Navbar extends React.Component {
 
             <form className="form-inline ml-auto">
               <div className="input-group">
-                <input
+                {/* <input
                   onFocus={this.onFocus}
                   onBlur={this.onBlur}
                   className={`search-bar ${this.state.searchBarIsFocused ? "active" : null}`}
                   type="text"
                   placeholder="Search ..."
-                />
+                /> */}
               </div>
             </form>
 
