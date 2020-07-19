@@ -453,7 +453,7 @@ class Home extends React.Component {
                   >
                     Products
                         </ButtonUI>
-                  <ButtonUI
+                  {/* <ButtonUI
                     className={`nav-atas-btn ${
                       this.state.activePage == "paket" ? "active" : null
                       } ml-4`}
@@ -461,7 +461,7 @@ class Home extends React.Component {
                     onClick={() => this.setState({ activePage: "paket" })}
                   >
                     Paket Products
-                        </ButtonUI>
+                        </ButtonUI> */}
                 </div>
               </div>
               <div className="mt-4">
